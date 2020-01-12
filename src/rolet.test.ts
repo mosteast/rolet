@@ -75,6 +75,7 @@ it('can()', async () => {
 	expect(rolet.can('b', 'b1.action1')).toBeFalsy()
 	expect(rolet.can('b', 'b1.action1')).toBeFalsy()
 	expect(rolet.can('bb1', 'bb1.action1')).toBeTruthy()
+	expect(rolet.can('bb1', 'b.action1')).toBeTruthy()
 	expect(rolet.can('bb1', 'bb2.action1')).toBeFalsy()
 	expect(rolet.can('bb2', 'bb2.action1')).toBeTruthy()
 	expect(rolet.can('bb2', 'bb1.action1')).toBeFalsy()
