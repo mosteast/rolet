@@ -30,6 +30,10 @@ export class Rolet<T_custom = any> {
 		this.analyze()
 	}
 
+	/**
+	 * Define raw tree and create rnodes
+	 * @param {T_role<T_custom>} node
+	 */
 	define(node: T_role<T_custom>) {
 		this.raw = Object.freeze(node)
 		this.root = new Rnode<T_custom>(node)
@@ -40,7 +44,9 @@ export class Rolet<T_custom = any> {
 	 */
 	analyze() {
 		const r: Rnode = this.root
-
+		r.walk_down(node => {
+			
+		})
 	}
 
 	/**
