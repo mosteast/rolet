@@ -1,4 +1,5 @@
-import { T_can, T_role, T_roles } from './type'
+import { T_action, T_actions, T_role, T_roles } from './type'
+import { unique } from './util'
 
 /**
  * Role node
@@ -11,12 +12,12 @@ export class Rnode<T_custom = any> implements T_role {
 	/**
 	 * @see {T_role}
 	 */
-	can: T_can
+	actions: T_actions
 
 	/**
 	 * @see {T_role}
 	 */
-	children: T_rnode_map
+	children: T_rnodes
 
 	/**
 	 * Parent node
@@ -49,22 +50,55 @@ export class Rnode<T_custom = any> implements T_role {
 		}
 	}
 
+	/**
+	 * Count direct children
+	 * @returns {number}
+	 */
 	count_children(): number {
-		return Object.keys(this.children).length
+		const children = this.children
+		if (!children) {return 0}
+		return Object.keys(children).length
 	}
 
-	count_descendent(): number {
+	/**
+	 * Get all actions (include inherited actions)
+	 * @returns {T_action[]}
+	 */
+	collect_actions(): T_action[] {
+		let actions = []
+
+		this.walk_up(it => {
+			console.log(it)
+			actions = actions.concat(it.actions)
+		})
+
+		return unique(actions)
+	}
+
+	/**
+	 * Count all descendants
+	 * @returns {number}
+	 */
+	count_descendants(): number {
 		let count = 0
 		this.walk_down(node => count += node.count_children())
 		return count
 	}
 
-	count_ascendent(): number {
+	/**
+	 * Count all ascendants
+	 * @returns {number}
+	 */
+	count_ascendants(): number {
 		let count = 0
 		this.walk_up(node => count += 1)
-		return count
+		return count - 1
 	}
 
+	/**
+	 * Walk along parents
+	 * @param {{(node: Rnode)}} fn
+	 */
 	walk_up(fn: { (node: Rnode) }) {
 		fn(this)
 		if (this.parent) {
@@ -72,6 +106,10 @@ export class Rnode<T_custom = any> implements T_role {
 		}
 	}
 
+	/**
+	 * Walk along children
+	 * @param {{(node: Rnode)}} fn
+	 */
 	walk_down(fn: { (node: Rnode) }) {
 		fn(this)
 		const children = this.children
@@ -82,13 +120,21 @@ export class Rnode<T_custom = any> implements T_role {
 		}
 	}
 
+	/**
+	 * Walk up 1 level
+	 * @param {{(parent: T_role<T_custom>)}} fn
+	 */
 	up(fn: { (parent: T_role<T_custom>) }) {
 		fn(this.parent)
 	}
 
+	/**
+	 * Walk down 1 level
+	 * @param {{(parent: T_role<T_custom>)}} fn
+	 */
 	down(fn: { (children: T_roles<T_custom>) }) {
 		fn(this.children)
 	}
 }
 
-export type T_rnode_map = { [key: string]: Rnode }
+export type T_rnodes = { [key: string]: Rnode }

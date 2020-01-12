@@ -22,7 +22,7 @@ export interface T_role<T_custom = any> {
 	 * @example
 	 * `[ changePasswordFn , Order.refundMethod ]`
 	 */
-	can: T_can
+	actions: T_actions
 
 	/**
 	 * Child nodes
@@ -39,5 +39,5 @@ export interface T_role<T_custom = any> {
 	custom?: T_custom
 }
 
-export type T_can = T_action[]
+export type T_actions = T_action[]
 export type T_action = any

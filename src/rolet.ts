@@ -45,7 +45,7 @@ export class Rolet<T_custom = any> {
 	analyze() {
 		const r: Rnode = this.root
 		r.walk_down(node => {
-			
+
 		})
 	}
 
