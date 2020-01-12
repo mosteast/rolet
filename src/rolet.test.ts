@@ -6,17 +6,19 @@ it('will validate role name', async () => {
 		actions: [ 'a_can1' ],
 		children: {
 			admin: {
-				actions: [ 'admin_action' ],
+				actions: [],
+				children: {
+					admin: {
+						actions: [],
+					},
+				},
 			},
 		},
 	}
 
-	const r = new Rolet(invalid_tree_with_same_role_names)
-	const actions = r.root.children.admin.collect_actions()
-	console.log(actions)
-
-	// expect(() => {
-	// }).toThrow()
+	expect(() => {
+		new Rolet(invalid_tree_with_same_role_names)
+	}).toThrow()
 })
 
 it('walk all children', async () => {

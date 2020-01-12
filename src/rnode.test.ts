@@ -1,5 +1,11 @@
 import { Rnode } from './rnode'
 import { T_role } from './type'
+import { DEFAULT_ROOT } from './rolet'
+import { Conflict_role_name } from './error/conflict_role_name'
+
+it('Can', async () => {
+	throw new Conflict_role_name('a')
+})
 
 it('convert()', async () => {
 	const ins = new Rnode()
@@ -30,7 +36,7 @@ it('convert()', async () => {
 })
 
 it('count_children()', async () => {
-	const ins = new Rnode({
+	const ins = new Rnode(DEFAULT_ROOT, {
 		actions: [],
 		children: {
 			a: {
@@ -53,7 +59,7 @@ it('count_children()', async () => {
 })
 
 it('count_descendants()', async () => {
-	const ins = new Rnode({
+	const ins = new Rnode(DEFAULT_ROOT, {
 		actions: [],
 		children: {
 			a: {
@@ -79,7 +85,7 @@ it('count_descendants()', async () => {
 })
 
 it('count_ascendants()', async () => {
-	const ins = new Rnode({
+	const ins = new Rnode(DEFAULT_ROOT, {
 		actions: [],
 		children: {
 			a: {

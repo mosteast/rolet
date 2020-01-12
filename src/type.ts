@@ -37,6 +37,13 @@ export interface T_role<T_custom = any> {
 	 * All custom data should placed in here.
 	 */
 	custom?: T_custom
+
+	/**
+	 * Same as key name
+	 *
+	 * This field will be auto generated when convert to rnode.
+	 */
+	name?: string
 }
 
 export type T_actions = T_action[]

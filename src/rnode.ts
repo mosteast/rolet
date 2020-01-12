@@ -8,6 +8,10 @@ import { unique } from './util'
  * behind it.
  */
 export class Rnode<T_custom = any> implements T_role {
+	/**
+	 * @see {T_role}
+	 */
+	name: string
 
 	/**
 	 * @see {T_role}
@@ -29,8 +33,14 @@ export class Rnode<T_custom = any> implements T_role {
 	 */
 	custom: any
 
-	constructor(role?: T_role<T_custom>) {
-		this.convert(role)
+	constructor()
+	constructor(name: string, role: T_role<T_custom>)
+	constructor(a?, b?) {
+		this.name = b
+
+		if (a) {
+			this.convert(a)
+		}
 	}
 
 	/**
@@ -45,7 +55,7 @@ export class Rnode<T_custom = any> implements T_role {
 		const children = this.children
 
 		for (let key in children) {
-			const child = children[key] = new Rnode(children[key])
+			const child = children[key] = new Rnode(key, children[key])
 			child.parent = this
 		}
 	}

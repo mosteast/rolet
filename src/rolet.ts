@@ -1,7 +1,16 @@
 import { T_action, T_role } from './type'
 import { Rnode } from './rnode'
+import { Conflict_role_name } from './error/conflict_role_name'
 
-export interface T_opt {}
+export const DEFAULT_ROOT = '_PUBLIC_'
+
+export interface T_opt {
+	/**
+	 * Name for default root node (since root node doesn't have a parent which
+	 * contains it's key name)
+	 */
+	root_name: string
+}
 
 /**
  * Role and permission manager
@@ -11,22 +20,39 @@ export class Rolet<T_custom = any> {
 	/**
 	 * Raw tree
 	 */
-	public raw: T_role<T_custom>
+	raw: T_role<T_custom>
 
 	/**
 	 * Parsed tree
 	 */
-	public root: Rnode<T_custom>
+	root: Rnode<T_custom>
 
-	constructor(tree: T_role<T_custom>, protected opt?: T_opt) {
-		this.init(tree)
+	/**
+	 * All roles as string
+	 */
+	roles: string[]
+
+	/**
+	 * All actions
+	 */
+	actions: string[]
+
+	/**
+	 * Options
+	 */
+	protected opt?: T_opt
+
+	constructor(tree: T_role<T_custom>, opt?: T_opt) {
 		this.opt = {
+			root_name: DEFAULT_ROOT,
 			...opt,
 		}
+
+		this.init(tree)
 	}
 
 	init(node: T_role<T_custom>) {
-		this.define(node)
+		this.load(node)
 		this.analyze()
 	}
 
@@ -34,19 +60,32 @@ export class Rolet<T_custom = any> {
 	 * Define raw tree and create rnodes
 	 * @param {T_role<T_custom>} node
 	 */
-	define(node: T_role<T_custom>) {
+	load(node: T_role<T_custom>) {
 		this.raw = Object.freeze(node)
-		this.root = new Rnode<T_custom>(node)
+		this.root = new Rnode<T_custom>(this.opt.root_name, node)
 	}
 
 	/**
-	 * Analyze Rnode tree
+	 * Analyze Rnode tree and create cache
 	 */
 	analyze() {
+		let roles   = []
+			, actions = []
+
 		const r: Rnode = this.root
 		r.walk_down(node => {
+			const name = node.name
+			if (roles.includes(name)) {
+				throw new Conflict_role_name(name)
+			} else {
+				roles.push(name)
+			}
 
+			actions = actions.concat(node.actions)
 		})
+
+		this.roles = roles
+		this.actions = actions
 	}
 
 	/**
@@ -57,17 +96,4 @@ export class Rolet<T_custom = any> {
 	can(node: string, action: T_action) {
 
 	}
-
-	// /**
-	//  * Walk down role tree
-	//  * @param {Function} fn - Run on each node.
-	//  * @param {T_role} current - Current node.
-	//  * @param {string} current_key - Current node key in parent node.
-	//  * @param {T_role} parent - Parent node.
-	//  */
-	// walk_down(fn: T_walk_down_callback, current?: T_role<T_custom>, current_key?:
-	// string, parent?: T_role<T_custom>) { if (!current) {return}  fn(current_key,
-	// parent)  const children: T_roles = current.children if (children) { for (let
-	// key in children) { const child = children[key] this.walk_down(fn, child, key,
-	// current) } } }
 }
