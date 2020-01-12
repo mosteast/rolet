@@ -73,8 +73,10 @@ export class Rolet<T_custom = any> {
 			, actions = []
 
 		const r: Rnode = this.root
+
 		r.walk_down(node => {
 			const name = node.name
+
 			if (roles.includes(name)) {
 				throw new Conflict_role_name(name)
 			} else {
@@ -93,7 +95,14 @@ export class Rolet<T_custom = any> {
 	 * @param {string} node
 	 * @param {T_action} action
 	 */
-	can(node: string, action: T_action) {
+	can(role_name: string, action: T_action): boolean {
+		return this
+			.find_by_role(role_name)
+			.collect_actions()
+			.includes(action)
+	}
 
+	find_by_role(role_name: string) {
+		return Rnode.find_by_role(this.root, role_name)
 	}
 }

@@ -35,11 +35,11 @@ export class Rnode<T_custom = any> implements T_role {
 
 	constructor()
 	constructor(name: string, role: T_role<T_custom>)
-	constructor(a?, b?) {
-		this.name = b
+	constructor(name?, role?) {
+		this.name = name
 
-		if (a) {
-			this.convert(a)
+		if (role) {
+			this.convert(role)
 		}
 	}
 
@@ -77,10 +77,7 @@ export class Rnode<T_custom = any> implements T_role {
 	collect_actions(): T_action[] {
 		let actions = []
 
-		this.walk_up(it => {
-			console.log(it)
-			actions = actions.concat(it.actions)
-		})
+		this.walk_up(it => actions = actions.concat(it.actions))
 
 		return unique(actions)
 	}
@@ -109,8 +106,15 @@ export class Rnode<T_custom = any> implements T_role {
 	 * Walk along parents
 	 * @param {{(node: Rnode)}} fn
 	 */
-	walk_up(fn: { (node: Rnode) }) {
-		fn(this)
+	walk_up(fn: { (node: Rnode) }, opt?: T_walk_opt) {
+		opt = {
+			detect_boolean: false,
+			...opt,
+		}
+
+		if (opt.stop && opt.stop(this)) {return}
+		if (fn(this) === false && opt.detect_boolean) {return}
+
 		if (this.parent) {
 			this.parent.walk_up(fn)
 		}
@@ -120,8 +124,15 @@ export class Rnode<T_custom = any> implements T_role {
 	 * Walk along children
 	 * @param {{(node: Rnode)}} fn
 	 */
-	walk_down(fn: { (node: Rnode) }) {
-		fn(this)
+	walk_down(fn: { (node: Rnode) }, opt?: T_walk_opt) {
+		opt = {
+			detect_boolean: false,
+			...opt,
+		}
+
+		if (opt.stop && opt.stop(this)) {return}
+		if (fn(this) === false && opt.detect_boolean) {return}
+
 		const children = this.children
 		if (children) {
 			for (let key in children) {
@@ -145,6 +156,30 @@ export class Rnode<T_custom = any> implements T_role {
 	down(fn: { (children: T_roles<T_custom>) }) {
 		fn(this.children)
 	}
+
+	/**
+	 * Find node by role name
+	 */
+	static find_by_role(from: Rnode, role_name: string): Rnode {
+		let role: Rnode
+
+		from.walk_down(it => {
+			if (it.name === role_name) {
+				role = it
+				return false
+			}
+		}, { detect_boolean: true })
+
+		return role
+	}
 }
 
 export type T_rnodes = { [key: string]: Rnode }
+
+export interface T_walk_opt {
+	/**
+	 * Stop condition
+	 */
+	stop?: { (node: Rnode): boolean },
+	detect_boolean?: boolean
+}
