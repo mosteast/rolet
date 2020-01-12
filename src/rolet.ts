@@ -3,6 +3,9 @@ import { Rnode } from './rnode'
 
 export interface T_opt {}
 
+/**
+ * Role and permission manager
+ */
 export class Rolet<T_custom = any> {
 
 	/**
