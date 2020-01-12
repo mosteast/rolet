@@ -92,28 +92,24 @@ export class Rolet<T_custom = any> {
 
 	/**
 	 * Permission check
-	 * @param {string} node
+	 * @param {string|string[]} node
 	 * @param {T_action} action
 	 */
-	can(role_name: string, action: T_action): boolean {
-		return this
-			.find_by_role(role_name)
-			.collect_actions()
-			.includes(action)
-	}
+	can(role_name: string | string[], action: T_action): boolean {
+		if (typeof role_name === 'string') {
+			role_name = [ role_name ]
+		}
 
-	/**
-	 *
-	 * @returns {boolean}
-	 */
-	any_can(role_names: string[], action: T_action): boolean {
-		for (let it of role_names) {
-			if (this.can(it, action)) {
+		for (let it of role_name) {
+			if (this
+				.find_by_role(it)
+				.collect_actions()
+				.includes(action)) {
 				return true
 			}
 		}
 
-		return false
+		return
 	}
 
 	find_by_role(role_name: string) {
