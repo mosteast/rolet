@@ -54,6 +54,14 @@ it('can()', async () => {
 		},
 	})
 
-	expect(rolet.can('b', 'a.action1')).toBeFalsy()
+	expect(rolet.can('a', 'a.action1')).toBeTruthy()
+	expect(rolet.can('a', 'a1.action1')).toBeFalsy()
 	expect(rolet.can('a1', 'a1.action1')).toBeTruthy()
+	expect(rolet.can('a1', 'a1.action2')).toBeTruthy()
+
+	expect(rolet.can('b', 'b.action1')).toBeTruthy()
+	expect(rolet.can('b', 'b1.action1')).toBeFalsy()
+	expect(rolet.can('b', 'b1.action1')).toBeFalsy()
+	expect(rolet.can('b1', 'b1.action1')).toBeTruthy()
+
 })
