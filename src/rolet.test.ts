@@ -29,25 +29,36 @@ it('can()', async () => {
 			a: {
 				actions: [ 'a.action1' ],
 				children: {
-					a1: {
-						actions: [ 'a1.action1', 'a1.action2' ],
+					aa1: {
+						actions: [ 'aa1.action1', 'aa1.action2' ],
+						children: {},
 					},
-					a2: {
-						actions: [ 'a2.action1', 'a2.action2' ],
+					aa2: {
+						actions: [ 'aa2.action1', 'aa2.action2' ],
 					},
 				},
 			},
 			b: {
 				actions: [ 'b.action1' ],
 				children: {
-					b1: {
-						actions: [ 'b1.action1', 'b1.action2' ],
+					bb1: {
+						actions: [ 'bb1.action1', 'bb1.action2' ],
 					},
-					b2: {
-						actions: [ 'b2.action1', 'b2.action2' ],
+					bb2: {
+						actions: [ 'bb2.action1', 'bb2.action2' ],
 					},
-					b3: {
-						actions: [ 'b3.action1', 'b3.action2' ],
+					bb3: {
+						actions: [ 'bb3.action1', 'bb3.action2' ],
+						children: {
+							bbb1: {
+								actions: [],
+								children: {
+									bbbb1: {
+										actions: [ 'bbbb1.action1', 'bbbb1.action2' ],
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -55,13 +66,22 @@ it('can()', async () => {
 	})
 
 	expect(rolet.can('a', 'a.action1')).toBeTruthy()
-	expect(rolet.can('a', 'a1.action1')).toBeFalsy()
-	expect(rolet.can('a1', 'a1.action1')).toBeTruthy()
-	expect(rolet.can('a1', 'a1.action2')).toBeTruthy()
+	expect(rolet.can('a', 'aa1.action1')).toBeFalsy()
+	expect(rolet.can('aa1', 'aa1.action1')).toBeTruthy()
+	expect(rolet.can('aa1', 'aa1.action2')).toBeTruthy()
+	expect(rolet.can('aa1', 'aa2.action2')).toBeFalsy()
 
 	expect(rolet.can('b', 'b.action1')).toBeTruthy()
 	expect(rolet.can('b', 'b1.action1')).toBeFalsy()
 	expect(rolet.can('b', 'b1.action1')).toBeFalsy()
-	expect(rolet.can('b1', 'b1.action1')).toBeTruthy()
+	expect(rolet.can('bb1', 'bb1.action1')).toBeTruthy()
+	expect(rolet.can('bb1', 'bb2.action1')).toBeFalsy()
+	expect(rolet.can('bb2', 'bb2.action1')).toBeTruthy()
+	expect(rolet.can('bb2', 'bb1.action1')).toBeFalsy()
+	expect(rolet.can('bb3', 'bb3.action1')).toBeTruthy()
+	expect(rolet.can('bb3', 'bb2.action1')).toBeFalsy()
 
+	expect(rolet.can('bbbb1', 'bbbb1.action1')).toBeTruthy()
+	expect(rolet.can('bbbb1', 'bbbb1.action2')).toBeTruthy()
+	expect(rolet.can('bbbb1', 'b.action1')).toBeTruthy()
 })
