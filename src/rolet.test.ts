@@ -51,7 +51,7 @@ it('can()', async () => {
 						actions: [ 'bb3.action1', 'bb3.action2' ],
 						children: {
 							bbb1: {
-								actions: [],
+								actions: [ 'bbb1.action1', 'bbb1.action2' ],
 								children: {
 									bbbb1: {
 										actions: [ 'bbbb1.action1', 'bbbb1.action2' ],
@@ -85,4 +85,11 @@ it('can()', async () => {
 	expect(rolet.can('bbbb1', 'bbbb1.action1')).toBeTruthy()
 	expect(rolet.can('bbbb1', 'bbbb1.action2')).toBeTruthy()
 	expect(rolet.can('bbbb1', 'b.action1')).toBeTruthy()
+
+	// Any can
+	expect(rolet.any_can([ 'b' ], 'b.action1')).toBeTruthy()
+	expect(rolet.any_can([ 'a', 'b' ], 'b.action1')).toBeTruthy()
+	expect(rolet.any_can([ 'b', 'bbbb1' ], 'bbb1.action2')).toBeTruthy()
+	expect(rolet.any_can([ 'bb1', 'b' ], 'bb2.action1')).toBeFalsy()
+	expect(rolet.any_can([ 'b' ], 'bbbb1.action2')).toBeFalsy()
 })

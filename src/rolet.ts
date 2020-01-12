@@ -102,6 +102,20 @@ export class Rolet<T_custom = any> {
 			.includes(action)
 	}
 
+	/**
+	 *
+	 * @returns {boolean}
+	 */
+	any_can(role_names: string[], action: T_action): boolean {
+		for (let it of role_names) {
+			if (this.can(it, action)) {
+				return true
+			}
+		}
+
+		return false
+	}
+
 	find_by_role(role_name: string) {
 		return Rnode.find_by_role(this.root, role_name)
 	}
