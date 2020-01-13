@@ -1,5 +1,4 @@
 const fs = require('fs')
-const json = require('./package.json')
 const shell = require('shelljs')
 
 const tmp_path = './tmp'
@@ -11,6 +10,8 @@ shell.exec(`npm version patch`)
 shell.exec(`rm -fr build/* && npx tsc`)
 shell.mv(git_backup_path, git_path)
 shell.cp('readme.md', 'build/readme.md')
+
+const json = require('./package.json')
 delete json.files
 json.main = 'index.js'
 json.type = 'index.d.ts'
