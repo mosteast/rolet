@@ -56,6 +56,6 @@ rolet.can('enterprise', 'salesman.action1') // false
 ```
 
 
-### test
+## Test
 
 ```npm t```
