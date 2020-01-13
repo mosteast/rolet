@@ -24,6 +24,12 @@ it('will validate role name', async () => {
 
 it('typical usage', async () => {
 	// Define role tree (or permission tree)
+	// _public_ (root)
+	//   └─regular
+	//        ├─salesman
+	//        └─premium
+	//             └─enterprise
+
 	const rolet: Rolet = new Rolet({ // Root node, default name '_public_'
 		actions: [ 'user.signup', 'user.login' ],
 		children: {

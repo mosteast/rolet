@@ -9,6 +9,7 @@ shell.mkdir('-p', tmp_path)
 shell.mv(git_path, git_backup_path)
 shell.exec(`rm -fr build/* && npx tsc`)
 shell.mv(git_backup_path, git_path)
+shell.cp('readme.md', 'build/readme.md')
 delete json.files
 json.main = 'index.js'
 json.type = 'index.d.ts'
