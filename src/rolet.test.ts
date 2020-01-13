@@ -80,20 +80,33 @@ it('use function and regex as actions', async () => {
 	//        └─premium
 	//             └─enterprise
 
-	const rolet: Rolet = new Rolet({ // Root node, default name '_public_'
-		actions: [ 'user.signup', 'user.login' ],
+	const rolet: Rolet = new Rolet({
+		// Action function, which returns action name
+		actions: [ () => 'user.signup', 'user.login' ],
 		children: {
-			regular: { // Inherit _public_ actions
+			regular: {
 				actions: [ 'user.logout', 'user.upgrade' ],
 				children: {
-					salesman: { // Inherit _public_, regular actions
-						actions: [ 'salesman.action1', 'salesman.action2' ],
+					salesman: {
+						// Action regular expression, which matches actions that start with
+						// 'salesman.'
+						actions: [ /^salesman\./ ],
 					},
-					premium: {  // Inherit _public_, regular actions
-						actions: [ 'premium.action1', 'premium.action2' ],
+					premium: {
+						// matches actions that start with 'premium'
+						actions: [ /^premium/ ],
 						children: {
-							enterprise: {  // Inherit _public_, regular, premium actions
-								actions: [ 'enterprise.action1', 'enterprise.action2' ],
+							enterprise: {
+								// 'enterprise.action1'
+								// A function that returns 'enterprise.action2'
+								// All actions starts with 'enterprise.read_'
+								// All actions like 'enterprise.delete_{xxx}_log'
+								actions: [
+									'enterprise.action1',
+									() => 'enterprise.action2',
+									/^enterprise\.read_/,
+									/^enterprise\.delete_\w+_log$/,
+								],
 							},
 						},
 					},
@@ -103,23 +116,30 @@ it('use function and regex as actions', async () => {
 	})
 
 	expect(rolet.can('_public_', 'user.signup')).toBeTruthy()
-	expect(rolet.can('_public_', 'user.login')).toBeTruthy()
-	expect(rolet.can('_public_', 'user.logout')).toBeFalsy()
 
 	expect(rolet.can('regular', 'user.signup')).toBeTruthy()
-	expect(rolet.can('regular', 'user.login')).toBeTruthy()
-	expect(rolet.can('regular', 'user.logout')).toBeTruthy()
 	expect(rolet.can('regular', 'premium.action1')).toBeFalsy()
 
 	expect(rolet.can('premium', 'premium.action1')).toBeTruthy()
-	expect(rolet.can('premium', 'premium.action2')).toBeTruthy()
+	expect(rolet.can('premium', 'premium_extend.action2')).toBeTruthy()
+	expect(rolet.can('premium', 'premium_special_action')).toBeTruthy()
 	expect(rolet.can('regular', 'premium.action1')).toBeFalsy()
+	expect(rolet.can('regular', 'premium_special_action')).toBeFalsy()
 	expect(rolet.can('salesman', 'premium.action1')).toBeFalsy()
+
+	expect(rolet.can('salesman', 'salesman.action1')).toBeTruthy()
+	expect(rolet.can('salesman', 'not_exist.action1')).toBeFalsy()
 
 	expect(rolet.can('enterprise', 'user.logout')).toBeTruthy()
 	expect(rolet.can('enterprise', 'premium.action1')).toBeTruthy()
 	expect(rolet.can('enterprise', 'enterprise.action1')).toBeTruthy()
+	expect(rolet.can('enterprise', 'enterprise.action2')).toBeTruthy()
+	expect(rolet.can('enterprise', 'enterprise.read_log')).toBeTruthy()
+	expect(rolet.can('enterprise', 'enterprise.delete_log')).toBeFalsy()
+	expect(rolet.can('enterprise', 'enterprise.delete_access_log')).toBeTruthy()
+	expect(rolet.can('enterprise', 'enterprise.update_access_log')).toBeFalsy()
 	expect(rolet.can('enterprise', 'salesman.action1')).toBeFalsy()
+	expect(rolet.can('premium', 'enterprise.action2')).toBeFalsy()
 })
 
 it('can()', async () => {
