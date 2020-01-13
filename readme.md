@@ -69,7 +69,7 @@ rolet.can('enterprise', 'salesman.action1') // false
 //             └─enterprise
 
 const rolet: Rolet = new Rolet({
-    // Action function, which returns action name
+    // Action function, which returns an action name
     actions: [ () => 'user.signup', 'user.login' ],
     children: {
         regular: {
@@ -85,14 +85,14 @@ const rolet: Rolet = new Rolet({
                     actions: [ /^premium/ ],
                     children: {
                         enterprise: {
-                            // 'enterprise.action1'
-                            // A function that returns 'enterprise.action2'
-                            // All actions starts with 'enterprise.read_'
-                            // All actions like 'enterprise.delete_{xxx}_log'
                             actions: [
+                            	// 'enterprise.action1'
                                 'enterprise.action1',
+                                // A function that returns 'enterprise.action2'
                                 () => 'enterprise.action2',
+                                // All actions starts with 'enterprise.read_'
                                 /^enterprise\.read_/,
+                                // All actions like 'enterprise.delete_{xxx}_log'
                                 /^enterprise\.delete_\w+_log$/,
                             ],
                         },
