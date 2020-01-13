@@ -47,4 +47,4 @@ export interface T_role<T_custom = any> {
 }
 
 export type T_actions = T_action[]
-export type T_action = any
+export type T_action = string | RegExp | Function

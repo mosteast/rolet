@@ -95,17 +95,28 @@ export class Rolet<T_custom = any> {
 	 * @param {string|string[]} node
 	 * @param {T_action} action
 	 */
-	can(role_name: string | string[], action: T_action): boolean {
+	can(role_name: string | string[], action: string): boolean {
 		if (typeof role_name === 'string') {
 			role_name = [ role_name ]
 		}
 
 		for (let it of role_name) {
-			if (this
+			const actions = this
 				.find_by_role(it)
 				.collect_actions()
-				.includes(action)) {
-				return true
+
+			for (let it2 of actions) {
+				if (typeof it2 === 'string') {
+					if (it2 === action) {
+						return true
+					}
+				} else {
+					if (it2 instanceof RegExp && it2.test(action)) {
+						return true
+					} else if (it2 instanceof Function && it2() === action) {
+						return true
+					}
+				}
 			}
 		}
 

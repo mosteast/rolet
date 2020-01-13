@@ -72,6 +72,56 @@ it('typical usage', async () => {
 	expect(rolet.can('enterprise', 'salesman.action1')).toBeFalsy()
 })
 
+it('use function and regex as actions', async () => {
+	// Define role tree (or permission tree)
+	// _public_ (root)
+	//   └─regular
+	//        ├─salesman
+	//        └─premium
+	//             └─enterprise
+
+	const rolet: Rolet = new Rolet({ // Root node, default name '_public_'
+		actions: [ 'user.signup', 'user.login' ],
+		children: {
+			regular: { // Inherit _public_ actions
+				actions: [ 'user.logout', 'user.upgrade' ],
+				children: {
+					salesman: { // Inherit _public_, regular actions
+						actions: [ 'salesman.action1', 'salesman.action2' ],
+					},
+					premium: {  // Inherit _public_, regular actions
+						actions: [ 'premium.action1', 'premium.action2' ],
+						children: {
+							enterprise: {  // Inherit _public_, regular, premium actions
+								actions: [ 'enterprise.action1', 'enterprise.action2' ],
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+
+	expect(rolet.can('_public_', 'user.signup')).toBeTruthy()
+	expect(rolet.can('_public_', 'user.login')).toBeTruthy()
+	expect(rolet.can('_public_', 'user.logout')).toBeFalsy()
+
+	expect(rolet.can('regular', 'user.signup')).toBeTruthy()
+	expect(rolet.can('regular', 'user.login')).toBeTruthy()
+	expect(rolet.can('regular', 'user.logout')).toBeTruthy()
+	expect(rolet.can('regular', 'premium.action1')).toBeFalsy()
+
+	expect(rolet.can('premium', 'premium.action1')).toBeTruthy()
+	expect(rolet.can('premium', 'premium.action2')).toBeTruthy()
+	expect(rolet.can('regular', 'premium.action1')).toBeFalsy()
+	expect(rolet.can('salesman', 'premium.action1')).toBeFalsy()
+
+	expect(rolet.can('enterprise', 'user.logout')).toBeTruthy()
+	expect(rolet.can('enterprise', 'premium.action1')).toBeTruthy()
+	expect(rolet.can('enterprise', 'enterprise.action1')).toBeTruthy()
+	expect(rolet.can('enterprise', 'salesman.action1')).toBeFalsy()
+})
+
 it('can()', async () => {
 	const rolet = new Rolet({
 		actions: [ 'root.action1' ],
