@@ -1,7 +1,15 @@
 {
   "name": "rolet",
   "description": "Powerful user permission management",
-  "version": "0.0.0",
+  "version": "0.0.3",
+  "keywords": [
+    "permission",
+    "user",
+    "role",
+    "access",
+    "auth",
+    "authentication"
+  ],
   "homepage": "https://github.com/mosteast/rolet#readme",
   "repository": "github:mosteast/rolet",
   "types": "build/index.d.ts",
