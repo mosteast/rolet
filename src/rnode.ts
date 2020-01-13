@@ -1,5 +1,6 @@
 import { T_action, T_actions, T_role, T_roles } from './type'
 import { unique } from './util'
+import { Lack_role } from './error/lack_role'
 
 /**
  * Role node
@@ -170,7 +171,11 @@ export class Rnode<T_custom = any> implements T_role {
 			}
 		}, { detect_boolean: true })
 
-		return role
+		if (role) {
+			return role
+		} else {
+			throw new Lack_role(role_name)
+		}
 	}
 }
 

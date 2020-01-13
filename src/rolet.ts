@@ -2,7 +2,7 @@ import { T_action, T_role } from './type'
 import { Rnode } from './rnode'
 import { Conflict_role_name } from './error/conflict_role_name'
 
-export const DEFAULT_ROOT = '_PUBLIC_'
+export const DEFAULT_ROOT = '_public_'
 
 export interface T_opt {
 	/**
@@ -109,7 +109,7 @@ export class Rolet<T_custom = any> {
 			}
 		}
 
-		return
+		return false
 	}
 
 	find_by_role(role_name: string) {
