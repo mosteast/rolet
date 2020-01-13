@@ -1,5 +1,7 @@
 # Rolet - Powerful user permission management
 
+Simple, yet powerful.
+
 ## Install
 
 ```npm i rolet```
