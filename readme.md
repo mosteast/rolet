@@ -1,4 +1,4 @@
-# Rolet - Powerful user permission management
+# Rolet - Powerful user permission manager
 
 Simple, yet powerful.
 
