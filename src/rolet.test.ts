@@ -87,7 +87,8 @@ it('use function and regex as actions', async () => {
 	//             └─enterprise
 
 	const rolet: Rolet = new Rolet({
-		// Action function, which returns an action name
+		// Action function, will be compared internally using `===`,
+		// Function (or any other type) will not be executed (or changed)
 		actions: [ user_signup, 'user.login' ],
 		children: {
 			regular: {
@@ -106,7 +107,7 @@ it('use function and regex as actions', async () => {
 								actions: [
 									// 'enterprise.action1'
 									'enterprise.action1',
-									// A function that returns 'enterprise.action2'
+									// Another action function
 									enterprise.action2,
 									// All actions starts with 'enterprise.read_'
 									/^enterprise\.read_/,

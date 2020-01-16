@@ -58,9 +58,18 @@ rolet.can('enterprise', 'enterprise.action1') // true
 rolet.can('enterprise', 'salesman.action1') // false
 ```
 
-### Function and Regex action
+### Action type
+
+To rolet, there are two kinds of action:
+
+1. Regex, which match action string when `can` is called.
+2. Any other type, string, function, object... which only do an strict compare
+ (`===`) check. 
 
 ```typescript
+const enterprise = { action2() {} }
+function user_signup() {}
+
 // Define role tree (or permission tree)
 // _public_ (root)
 //   └─regular
@@ -69,8 +78,9 @@ rolet.can('enterprise', 'salesman.action1') // false
 //             └─enterprise
 
 const rolet: Rolet = new Rolet({
-    // Action function, which returns an action name
-    actions: [ () => 'user.signup', 'user.login' ],
+    // Action function, will be compared internally using `===`,
+    // Function (or any other type) will not be executed (or changed)
+    actions: [ user_signup, 'user.login' ],
     children: {
         regular: {
             actions: [ 'user.logout', 'user.upgrade' ],
@@ -86,10 +96,10 @@ const rolet: Rolet = new Rolet({
                     children: {
                         enterprise: {
                             actions: [
-                            	// 'enterprise.action1'
+                                // 'enterprise.action1'
                                 'enterprise.action1',
-                                // A function that returns 'enterprise.action2'
-                                () => 'enterprise.action2',
+                                // Another action function
+                                enterprise.action2,
                                 // All actions starts with 'enterprise.read_'
                                 /^enterprise\.read_/,
                                 // All actions like 'enterprise.delete_{xxx}_log'
@@ -103,9 +113,8 @@ const rolet: Rolet = new Rolet({
     },
 })
 
-rolet.can('_public_', 'user.signup') // true
-
-rolet.can('regular', 'user.signup') // true
+rolet.can('_public_', user_signup) // true
+rolet.can('regular', user_signup) // true
 rolet.can('regular', 'premium.action1') // false
 
 rolet.can('premium', 'premium.action1') // true
@@ -121,14 +130,13 @@ rolet.can('salesman', 'not_exist.action1') // false
 rolet.can('enterprise', 'user.logout') // true
 rolet.can('enterprise', 'premium.action1') // true
 rolet.can('enterprise', 'enterprise.action1') // true
-rolet.can('enterprise', 'enterprise.action2') // true
+rolet.can('enterprise', enterprise.action2) // true
 rolet.can('enterprise', 'enterprise.read_log') // true
 rolet.can('enterprise', 'enterprise.delete_log') // false
 rolet.can('enterprise', 'enterprise.delete_access_log') // true
 rolet.can('enterprise', 'enterprise.update_access_log') // false
 rolet.can('enterprise', 'salesman.action1') // false
-rolet.can('premium', 'enterprise.action2') // false
-
+rolet.can('premium', enterprise.action2) // false
 ```
 
 ## Test
