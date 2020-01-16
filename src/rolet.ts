@@ -92,10 +92,10 @@ export class Rolet<T_custom = any> {
 
 	/**
 	 * Permission check
-	 * @param {string|string[]} node
+	 * @param role_name
 	 * @param {T_action} action
 	 */
-	can(role_name: string | string[], action: string): boolean {
+	can(role_name: string | string[], action: string | object | Function | RegExp): boolean {
 		if (typeof role_name === 'string') {
 			role_name = [ role_name ]
 		}
@@ -106,14 +106,10 @@ export class Rolet<T_custom = any> {
 				.collect_actions()
 
 			for (let it2 of actions) {
-				if (typeof it2 === 'string') {
-					if (it2 === action) {
-						return true
-					}
+				if (it2 instanceof RegExp && typeof action === 'string' && it2.test(action)) {
+					return true
 				} else {
-					if (it2 instanceof RegExp && it2.test(action)) {
-						return true
-					} else if (it2 instanceof Function && it2() === action) {
+					if (it2 === action) {
 						return true
 					}
 				}

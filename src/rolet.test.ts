@@ -73,6 +73,12 @@ it('typical usage', async () => {
 })
 
 it('use function and regex as actions', async () => {
+	function user_signup() {}
+
+	const enterprise = {
+		action2() {},
+	}
+
 	// Define role tree (or permission tree)
 	// _public_ (root)
 	//   └─regular
@@ -82,7 +88,7 @@ it('use function and regex as actions', async () => {
 
 	const rolet: Rolet = new Rolet({
 		// Action function, which returns an action name
-		actions: [ () => 'user.signup', 'user.login' ],
+		actions: [ user_signup, 'user.login' ],
 		children: {
 			regular: {
 				actions: [ 'user.logout', 'user.upgrade' ],
@@ -101,7 +107,7 @@ it('use function and regex as actions', async () => {
 									// 'enterprise.action1'
 									'enterprise.action1',
 									// A function that returns 'enterprise.action2'
-									() => 'enterprise.action2',
+									enterprise.action2,
 									// All actions starts with 'enterprise.read_'
 									/^enterprise\.read_/,
 									// All actions like 'enterprise.delete_{xxx}_log'
@@ -115,9 +121,8 @@ it('use function and regex as actions', async () => {
 		},
 	})
 
-	expect(rolet.can('_public_', 'user.signup')).toBeTruthy()
-
-	expect(rolet.can('regular', 'user.signup')).toBeTruthy()
+	expect(rolet.can('_public_', user_signup)).toBeTruthy()
+	expect(rolet.can('regular', user_signup)).toBeTruthy()
 	expect(rolet.can('regular', 'premium.action1')).toBeFalsy()
 
 	expect(rolet.can('premium', 'premium.action1')).toBeTruthy()
@@ -133,13 +138,13 @@ it('use function and regex as actions', async () => {
 	expect(rolet.can('enterprise', 'user.logout')).toBeTruthy()
 	expect(rolet.can('enterprise', 'premium.action1')).toBeTruthy()
 	expect(rolet.can('enterprise', 'enterprise.action1')).toBeTruthy()
-	expect(rolet.can('enterprise', 'enterprise.action2')).toBeTruthy()
+	expect(rolet.can('enterprise', enterprise.action2)).toBeTruthy()
 	expect(rolet.can('enterprise', 'enterprise.read_log')).toBeTruthy()
 	expect(rolet.can('enterprise', 'enterprise.delete_log')).toBeFalsy()
 	expect(rolet.can('enterprise', 'enterprise.delete_access_log')).toBeTruthy()
 	expect(rolet.can('enterprise', 'enterprise.update_access_log')).toBeFalsy()
 	expect(rolet.can('enterprise', 'salesman.action1')).toBeFalsy()
-	expect(rolet.can('premium', 'enterprise.action2')).toBeFalsy()
+	expect(rolet.can('premium', enterprise.action2)).toBeFalsy()
 })
 
 it('can()', async () => {
