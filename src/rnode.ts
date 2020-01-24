@@ -5,8 +5,8 @@ import { Lack_role } from './error/lack_role'
 /**
  * Role node
  *
- * Each node stands for a role, and there is a set of potential permissions
- * behind it.
+ * Each node stands for a role, and there is a set of potential
+ * permissions behind it.
  */
 export class Rnode<T_custom = any> implements T_role {
 	/**

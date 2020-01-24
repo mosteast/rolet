@@ -6,8 +6,8 @@ export const DEFAULT_ROOT = '_public_'
 
 export interface T_opt {
 	/**
-	 * Name for default root node (since root node doesn't have a parent which
-	 * contains it's key name)
+	 * Name for default root node (since root node doesn't have a
+	 * parent which contains it's key name)
 	 */
 	root_name: string
 }
@@ -51,6 +51,10 @@ export class Rolet<T_custom = any> {
 		this.init(tree)
 	}
 
+	/**
+	 * Init rolet
+	 * @param node
+	 */
 	init(node: T_role<T_custom>) {
 		this.load(node)
 		this.analyze()
