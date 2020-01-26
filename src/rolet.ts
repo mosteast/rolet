@@ -100,8 +100,12 @@ export class Rolet<T_custom = any> {
 	 * @param {T_action} action
 	 */
 	can(role_name: string | string[], action: string | object | Function | RegExp): boolean {
-		if (typeof role_name === 'string') {
-			role_name = [ role_name ]
+		if (role_name) {
+			if (typeof role_name === 'string') {
+				role_name = [ role_name ]
+			}
+		} else {
+			role_name = []
 		}
 
 		if (!role_name.length) {
