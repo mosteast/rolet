@@ -104,6 +104,10 @@ export class Rolet<T_custom = any> {
 			role_name = [ role_name ]
 		}
 
+		if (!role_name.length) {
+			role_name = [ DEFAULT_ROOT ]
+		}
+
 		for (let it of role_name) {
 			const actions = this
 				.find_by_role(it)
