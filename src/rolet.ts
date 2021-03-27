@@ -106,7 +106,7 @@ export class Rolet<T_custom = any> {
    * is(['_public_'], 'admin') --> false
    * is(['_public_'], 'employee') --> false
    */
-  is(roles: string[] | string, role: string, { all }: { all?: boolean } = {}): boolean {
+  is(roles: string[] | string, role: string, { all }: { all?: boolean } = { all: false }): boolean {
     if (typeof roles === 'string') { roles = [ roles ]; }
     if ( ! roles?.length) { roles = [ this.opt.root_name ]; }
 
