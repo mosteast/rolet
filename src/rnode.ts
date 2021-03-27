@@ -1,6 +1,6 @@
+import uniq from 'lodash-es/uniq';
 import { Lack_role } from './error/lack_role';
 import { T_action, T_actions, T_role, T_roles } from './type';
-import { unique } from './util';
 
 /**
  * Role node
@@ -17,12 +17,12 @@ export class Rnode<T_custom = any> implements T_role {
   /**
    * @see {T_role}
    */
-  actions: T_actions;
+  actions?: T_actions;
 
   /**
    * @see {T_role}
    */
-  children: T_rnodes;
+  children?: T_rnodes;
 
   /**
    * Parent node
@@ -36,7 +36,7 @@ export class Rnode<T_custom = any> implements T_role {
 
   constructor()
   constructor(name: string, role: T_role<T_custom>)
-  constructor(name?, role?) {
+  constructor(name?: any, role?: any) {
     this.role = name;
 
     if (role) {
@@ -50,6 +50,7 @@ export class Rnode<T_custom = any> implements T_role {
   convert(role: T_role) {
 
     for (let key in role) {
+      // @ts-ignore
       this[key] = role[key];
     }
 
@@ -75,11 +76,11 @@ export class Rnode<T_custom = any> implements T_role {
    * Get all actions (include inherited actions)
    */
   collect_actions(): T_action[] {
-    let r = [];
+    let r: string[] = [];
 
-    this.walk_up(it => r = r.concat(it.actions || []));
+    this.walk_up(it => r = r.concat(it.actions as string[] || []));
 
-    return unique(r);
+    return uniq(r);
   }
 
   /**
@@ -88,9 +89,10 @@ export class Rnode<T_custom = any> implements T_role {
   collect_roles(direction: 'up' | 'down' = 'up'): string[] {
     let r = [ this.role ];
 
-    this['walk_' + direction](it => r.push(it.role));
+    const method = ('walk_' + direction) as keyof Rnode;
+    this[method]((it: Rnode) => r.push(it.role));
 
-    return unique(r);
+    return uniq(r);
   }
 
   /**
@@ -135,7 +137,7 @@ export class Rnode<T_custom = any> implements T_role {
    * Walk along children
    * @param {{(node: Rnode)}} fn
    */
-  walk_down(fn: { (node: Rnode) }, opt?: T_walk_opt) {
+  walk_down(fn: (node: Rnode) => any, opt?: T_walk_opt) {
     opt = {
       detect_boolean: false,
       ...opt,
@@ -156,16 +158,20 @@ export class Rnode<T_custom = any> implements T_role {
    * Walk up 1 level
    * @param {{(parent: T_role<T_custom>)}} fn
    */
-  up(fn: { (parent: T_role<T_custom>) }) {
-    fn(this.parent);
+  up(fn: (parent: T_role<T_custom>) => any) {
+    if (this.parent) {
+      fn(this.parent);
+    }
   }
 
   /**
    * Walk down 1 level
    * @param {{(parent: T_role<T_custom>)}} fn
    */
-  down(fn: { (children: T_roles<T_custom>) }) {
-    fn(this.children);
+  down(fn: (children: T_roles<T_custom>) => any) {
+    if (this.children) {
+      fn(this.children);
+    }
   }
 
   /**
@@ -181,6 +187,7 @@ export class Rnode<T_custom = any> implements T_role {
       }
     }, { detect_boolean: true });
 
+    // @ts-ignore
     if (role) {
       return role;
     } else {

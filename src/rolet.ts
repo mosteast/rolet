@@ -1,7 +1,7 @@
+import uniq from 'lodash-es/uniq';
 import { Conflict_role_name } from './error/conflict_role_name';
 import { Rnode } from './rnode';
 import { T_action, T_role } from './type';
-import { unique } from './util';
 
 export const DEFAULT_ROOT = '_public_';
 
@@ -21,27 +21,27 @@ export class Rolet<T_custom = any> {
   /**
    * Raw tree
    */
-  raw: T_role<T_custom>;
+  raw!: T_role<T_custom>;
 
   /**
    * Parsed tree
    */
-  root: Rnode<T_custom>;
+  root!: Rnode<T_custom>;
 
   /**
    * All roles as string
    */
-  roles: string[];
+  roles!: string[];
 
   /**
    * All actions
    */
-  actions: string[];
+  actions!: string[];
 
   /**
    * Options
    */
-  protected opt?: T_opt;
+  protected opt!: T_opt;
 
   constructor(tree: T_role<T_custom>, opt?: T_opt) {
     this.opt = {
@@ -74,9 +74,8 @@ export class Rolet<T_custom = any> {
    * Analyze Rnode tree and create cache
    */
   analyze() {
-    let roles   = []
-      ,
-        actions = [];
+    let roles: string[]   = [],
+        actions: string[] = [];
 
     const r: Rnode = this.root;
 
@@ -89,7 +88,7 @@ export class Rolet<T_custom = any> {
         roles.push(name);
       }
 
-      actions = actions.concat(node.actions || []);
+      actions = actions.concat(node.actions as string[] || []);
     });
 
     this.roles = roles;
@@ -120,7 +119,7 @@ export class Rolet<T_custom = any> {
       }
     }
 
-    return all;
+    return !! all;
   }
 
   /**
@@ -128,11 +127,11 @@ export class Rolet<T_custom = any> {
    */
   calc_complete_roles(roles: string[] | string): string[] {
     if (typeof roles === 'string') { roles = [ roles ]; }
-    const r = [];
+    let r: string[] = [];
     for (const it of roles) {
-      r.concat(this._calc_complete_roles_single(it));
+      r = r.concat(this._calc_complete_roles_single(it));
     }
-    return unique(r);
+    return uniq(r);
   }
 
   /**

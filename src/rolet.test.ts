@@ -268,3 +268,43 @@ it('is', async () => {
   expect(rolet.is([], 'invalid_name')).toBeFalsy();
   expect(() => rolet.is([ 'invalid_name' ], 'a')).toThrow(Lack_role);
 });
+
+it('tmp', async () => {
+  /**
+   * This permission object controls API level user permissions
+   * (which users can call which APIs)
+   */
+  const permission: Rolet = new Rolet({
+    actions: [ // public actions
+      '_util.timestamp', '_util.list_ccode', '_util.translate_many', '_util.get_all_langs',
+      '$user.los', '$user.signup', '$user.login', '$user.tourist_login', '$user.recover', '$user.pick_him',
+      '$vcode.send', '$user.get_most_required_info',
+      '_util.dash_brief',
+      '$segment.read_root', '$segment.pick_by_unique',
+    ],
+    children: {
+      regular: {
+        actions: [
+          '$user.logout', '$user.password_change', '$user.update_account', '$user.password_set',
+          '$user.setting_merge', '$user.setting_set', '$user.setting_get',
+          '_util.my_brief',
+        ],
+        children: {
+          employee: {
+            actions: [],
+            children: {
+              wiki_content_manager: {
+                actions: [
+                  '$segment.create', '$segment.upsert', '$segment.i18n_add', '$segment.i18n_remove',
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const r = permission.calc_complete_roles([ 'regular', 'wiki_content_manager' ]);
+  console.log(r);
+});

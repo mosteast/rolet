@@ -1,17 +1,27 @@
 {
   "compilerOptions": {
+    "rootDir": ".",
+    "strict": true,
     "target": "es6",
+    "lib": [
+      "esnext"
+    ],
+    "esModuleInterop": true,
     "declaration": true,
     "sourceMap": true,
     "outDir": "build",
     "module": "commonjs",
     "moduleResolution": "node",
+    "allowJs": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",
-    "dist",
-    "build"
+    "build",
+    "tmp",
+    "test",
+    "src/frontend/angular",
+    "**/*.test.ts"
   ]
 }
