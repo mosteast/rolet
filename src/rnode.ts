@@ -1,4 +1,4 @@
-import uniq from 'lodash-es/uniq';
+import uniq from 'lodash.uniq';
 import { Lack_role } from './error/lack_role';
 import { T_action, T_actions, T_role, T_roles } from './type';
 

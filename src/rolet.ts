@@ -1,4 +1,4 @@
-import uniq from 'lodash-es/uniq';
+import uniq from 'lodash.uniq';
 import { Conflict_role_name } from './error/conflict_role_name';
 import { Rnode } from './rnode';
 import { T_action, T_role } from './type';
