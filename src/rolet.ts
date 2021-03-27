@@ -1,6 +1,7 @@
 import { Conflict_role_name } from './error/conflict_role_name';
 import { Rnode } from './rnode';
 import { T_action, T_role } from './type';
+import { unique } from './util';
 
 export const DEFAULT_ROOT = '_public_';
 
@@ -111,8 +112,7 @@ export class Rolet<T_custom = any> {
     if ( ! roles?.length) { roles = [ this.opt.root_name ]; }
 
     for (const it of roles) {
-      const node = Rnode.find_by_role(this.root, it);
-      const collection = node.collect_roles();
+      const collection = this._calc_complete_roles_single(it);
       if (all) {
         if ( ! collection.includes(role)) { return false; }
       } else {
@@ -121,6 +121,26 @@ export class Rolet<T_custom = any> {
     }
 
     return all;
+  }
+
+  /**
+   * Collect roles upward through ancestors
+   */
+  calc_complete_roles(roles: string[] | string): string[] {
+    if (typeof roles === 'string') { roles = [ roles ]; }
+    const r = [];
+    for (const it of roles) {
+      r.concat(this._calc_complete_roles_single(it));
+    }
+    return unique(r);
+  }
+
+  /**
+   * Collect roles upward through ancestors
+   */
+  private _calc_complete_roles_single(role: string): string[] {
+    const node = Rnode.find_by_role(this.root, role);
+    return node.collect_roles();
   }
 
   /**
