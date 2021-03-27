@@ -1,15 +1,15 @@
-import { T_action, T_role } from './type'
-import { Rnode } from './rnode'
-import { Conflict_role_name } from './error/conflict_role_name'
+import { Conflict_role_name } from './error/conflict_role_name';
+import { Rnode } from './rnode';
+import { T_action, T_role } from './type';
 
-export const DEFAULT_ROOT = '_public_'
+export const DEFAULT_ROOT = '_public_';
 
 export interface T_opt {
-	/**
-	 * Name for default root node (since root node doesn't have a
-	 * parent which contains it's key name)
-	 */
-	root_name: string
+  /**
+   * Name for default root node (since root node doesn't have a
+   * parent which contains it's key name)
+   */
+  root_name: string
 }
 
 /**
@@ -17,121 +17,150 @@ export interface T_opt {
  */
 export class Rolet<T_custom = any> {
 
-	/**
-	 * Raw tree
-	 */
-	raw: T_role<T_custom>
+  /**
+   * Raw tree
+   */
+  raw: T_role<T_custom>;
 
-	/**
-	 * Parsed tree
-	 */
-	root: Rnode<T_custom>
+  /**
+   * Parsed tree
+   */
+  root: Rnode<T_custom>;
 
-	/**
-	 * All roles as string
-	 */
-	roles: string[]
+  /**
+   * All roles as string
+   */
+  roles: string[];
 
-	/**
-	 * All actions
-	 */
-	actions: string[]
+  /**
+   * All actions
+   */
+  actions: string[];
 
-	/**
-	 * Options
-	 */
-	protected opt?: T_opt
+  /**
+   * Options
+   */
+  protected opt?: T_opt;
 
-	constructor(tree: T_role<T_custom>, opt?: T_opt) {
-		this.opt = {
-			root_name: DEFAULT_ROOT,
-			...opt,
-		}
+  constructor(tree: T_role<T_custom>, opt?: T_opt) {
+    this.opt = {
+      root_name: DEFAULT_ROOT,
+      ...opt,
+    };
 
-		this.init(tree)
-	}
+    this.init(tree);
+  }
 
-	/**
-	 * Init rolet
-	 * @param node
-	 */
-	init(node: T_role<T_custom>) {
-		this.load(node)
-		this.analyze()
-	}
+  /**
+   * Init rolet
+   * @param node
+   */
+  init(node: T_role<T_custom>) {
+    this.load(node);
+    this.analyze();
+  }
 
-	/**
-	 * Define raw tree and create rnodes
-	 * @param {T_role<T_custom>} node
-	 */
-	load(node: T_role<T_custom>) {
-		this.raw = Object.freeze(node)
-		this.root = new Rnode<T_custom>(this.opt.root_name, node)
-	}
+  /**
+   * Define raw tree and create rnodes
+   * @param {T_role<T_custom>} node
+   */
+  load(node: T_role<T_custom>) {
+    this.raw = Object.freeze(node);
+    this.root = new Rnode<T_custom>(this.opt.root_name, node);
+  }
 
-	/**
-	 * Analyze Rnode tree and create cache
-	 */
-	analyze() {
-		let roles   = []
-			, actions = []
+  /**
+   * Analyze Rnode tree and create cache
+   */
+  analyze() {
+    let roles   = []
+      ,
+        actions = [];
 
-		const r: Rnode = this.root
+    const r: Rnode = this.root;
 
-		r.walk_down(node => {
-			const name = node.name
+    r.walk_down(node => {
+      const name = node.role;
 
-			if (roles.includes(name)) {
-				throw new Conflict_role_name(name)
-			} else {
-				roles.push(name)
-			}
+      if (roles.includes(name)) {
+        throw new Conflict_role_name(name);
+      } else {
+        roles.push(name);
+      }
 
-			actions = actions.concat(node.actions)
-		})
+      actions = actions.concat(node.actions || []);
+    });
 
-		this.roles = roles
-		this.actions = actions
-	}
+    this.roles = roles;
+    this.actions = actions;
+  }
 
-	/**
-	 * Permission check
-	 * @param role_name
-	 * @param {T_action} action
-	 */
-	can(role_name: string | string[], action: string | object | Function | RegExp): boolean {
-		if (role_name) {
-			if (typeof role_name === 'string') {
-				role_name = [ role_name ]
-			}
-		} else {
-			role_name = []
-		}
+  /**
+   * Is {roles} a {role}?
+   *
+   * is(['admin'], 'admin') --> true
+   * is(['admin'], '_public_') --> true
+   * is(['admin', 'employee'], 'employee') --> true
+   *
+   * is(['employee'], 'admin') --> false
+   * is(['_public_'], 'admin') --> false
+   * is(['_public_'], 'employee') --> false
+   */
+  is(roles: string[] | string, role: string, { all }: { all?: boolean } = {}): boolean {
+    if (typeof roles === 'string') { roles = [ roles ]; }
+    if ( ! roles?.length) { roles = [ this.opt.root_name ]; }
 
-		if (!role_name.length) {
-			role_name = [ DEFAULT_ROOT ]
-		}
+    for (const it of roles) {
+      const node = Rnode.find_by_role(this.root, it);
+      const collection = node.collect_roles();
+      if (all) {
+        if ( ! collection.includes(role)) { return false; }
+      } else {
+        if (collection.includes(role)) { return true; }
+      }
+    }
 
-		for (let it of role_name) {
-			const actions = this
-				.find_by_role(it)
-				.collect_actions()
+    return all;
+  }
 
-			for (let it2 of actions) {
-				if (it2 instanceof RegExp && typeof action === 'string' && it2.test(action)) {
-					return true
-				} else {
-					if (it2 === action) {
-						return true
-					}
-				}
-			}
-		}
+  /**
+   * Permission check
+   * @param role_name
+   * @param {T_action} action
+   */
+  can(role_name: string | string[], action: string | object | Function | RegExp): boolean {
+    if (role_name) {
+      if (typeof role_name === 'string') {
+        role_name = [ role_name ];
+      }
+    } else {
+      role_name = [];
+    }
 
-		return false
-	}
+    if ( ! role_name.length) {
+      role_name = [ DEFAULT_ROOT ];
+    }
 
-	find_by_role(role_name: string) {
-		return Rnode.find_by_role(this.root, role_name)
-	}
+    for (let it of role_name) {
+      const actions = this
+        .find_by_role(it)
+        .collect_actions();
+
+      for (let it2 of actions) {
+        if (it2 instanceof RegExp && typeof action === 'string' && it2.test(action)) {
+          return true;
+        } else {
+          if (it2 === action) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  find_by_role(role_name: string) {
+    return Rnode.find_by_role(this.root, role_name);
+  }
 }

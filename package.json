@@ -1,7 +1,7 @@
 {
   "name": "rolet",
   "description": "Powerful user permission management",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "keywords": [
     "permission",
     "user",
@@ -26,12 +26,11 @@
   },
   "author": "Mosteast team",
   "license": "ISC",
-  "dependencies": {},
   "devDependencies": {
     "@types/fs-extra": "^8.0.1",
-    "@types/shelljs": "^0.8.6",
     "@types/jest": "^24.0.23",
     "@types/node": "^11.15.3",
+    "@types/shelljs": "^0.8.6",
     "fs-extra": "^8.1.0",
     "jest": "^24.9.0",
     "shelljs": "^0.8.3",
