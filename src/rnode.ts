@@ -1,5 +1,4 @@
 import uniq from 'lodash.uniq';
-import { Lack_role } from './error/lack_role';
 import { T_action, T_actions, T_role, T_roles } from './type';
 
 /**
@@ -177,11 +176,11 @@ export class Rnode<T_custom = any> implements T_role {
   /**
    * Find node by role name
    */
-  static find_by_role(from: Rnode, role_name: string): Rnode {
+  static find_by_role(from: Rnode, name: string): Rnode | undefined {
     let role: Rnode;
 
     from.walk_down(it => {
-      if (it.role === role_name) {
+      if (it.role === name) {
         role = it;
         return false;
       }
@@ -190,8 +189,6 @@ export class Rnode<T_custom = any> implements T_role {
     // @ts-ignore
     if (role) {
       return role;
-    } else {
-      throw new Lack_role(role_name);
     }
   }
 }

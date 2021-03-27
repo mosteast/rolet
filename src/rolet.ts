@@ -118,6 +118,7 @@ export class Rolet<T_custom = any> {
 
     for (const it of roles) {
       const collection = this._calc_complete_roles_single(it);
+      if ( ! collection?.length) { continue; }
       if (all) {
         if ( ! collection.includes(role)) { return false; }
       } else {
@@ -135,7 +136,7 @@ export class Rolet<T_custom = any> {
     if (typeof roles === 'string') { roles = [ roles ]; }
     let r: string[] = [];
     for (const it of roles) {
-      r = r.concat(this._calc_complete_roles_single(it));
+      r = r.concat(this._calc_complete_roles_single(it) || []);
     }
     return uniq(r);
   }
@@ -143,9 +144,9 @@ export class Rolet<T_custom = any> {
   /**
    * Collect roles upward through ancestors
    */
-  private _calc_complete_roles_single(role: string): string[] {
+  private _calc_complete_roles_single(role: string): string[] | undefined {
     const node = Rnode.find_by_role(this.root, role);
-    return node.collect_roles();
+    return node?.collect_roles();
   }
 
   /**
@@ -171,7 +172,9 @@ export class Rolet<T_custom = any> {
     for (let it of roles) {
       const actions = this
         .find_by_role(it)
-        .collect_actions();
+        ?.collect_actions();
+
+      if ( ! actions?.length) { continue; }
 
       for (let it2 of actions) {
         if (it2 instanceof RegExp && typeof action === 'string' && it2.test(action)) {
