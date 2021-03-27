@@ -10,7 +10,7 @@ export interface T_opt {
    * Name for default root node (since root node doesn't have a
    * parent which contains it's key name)
    */
-  root_name: string
+  root_name?: string
 
   /**
    * Super role, which pass all permissions
@@ -46,7 +46,7 @@ export class Rolet<T_custom = any> {
   /**
    * Options
    */
-  protected opt!: T_opt;
+  protected opt!: T_opt & { root_name: string };
 
   constructor(tree: T_role<T_custom>, opt?: T_opt) {
     this.opt = {
@@ -68,7 +68,6 @@ export class Rolet<T_custom = any> {
 
   /**
    * Define raw tree and create rnodes
-   * @param {T_role<T_custom>} node
    */
   load(node: T_role<T_custom>) {
     this.raw = Object.freeze(node);
