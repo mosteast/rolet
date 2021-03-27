@@ -11,6 +11,11 @@ export interface T_opt {
    * parent which contains it's key name)
    */
   root_name: string
+
+  /**
+   * Super role, which pass all permissions
+   */
+  super?: string
 }
 
 /**
@@ -110,6 +115,8 @@ export class Rolet<T_custom = any> {
     if (typeof roles === 'string') { roles = [ roles ]; }
     if ( ! roles?.length) { roles = [ this.opt.root_name ]; }
 
+    if (this.opt.super && roles.includes(this.opt.super)) { return true; }
+
     for (const it of roles) {
       const collection = this._calc_complete_roles_single(it);
       if (all) {
@@ -144,23 +151,25 @@ export class Rolet<T_custom = any> {
 
   /**
    * Permission check
-   * @param role_name
+   * @param roles
    * @param {T_action} action
    */
-  can(role_name: string | string[], action: string | object | Function | RegExp): boolean {
-    if (role_name) {
-      if (typeof role_name === 'string') {
-        role_name = [ role_name ];
+  can(roles: string | string[], action: string | object | Function | RegExp): boolean {
+    if (roles) {
+      if (typeof roles === 'string') {
+        roles = [ roles ];
       }
     } else {
-      role_name = [];
+      roles = [];
     }
 
-    if ( ! role_name.length) {
-      role_name = [ DEFAULT_ROOT ];
+    if (this.opt.super && roles.includes(this.opt.super)) { return true; }
+
+    if ( ! roles.length) {
+      roles = [ DEFAULT_ROOT ];
     }
 
-    for (let it of role_name) {
+    for (let it of roles) {
       const actions = this
         .find_by_role(it)
         .collect_actions();
