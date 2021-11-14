@@ -93,7 +93,7 @@ export class Rnode<T_custom = any> implements T_role {
   /**
    * Sum node roles
    */
-  collect_values(path: keyof Rnode | string, direction: 'up' | 'down' = 'up'): string[] {
+  collect_values<T = any>(path: keyof Rnode | string, direction: 'up' | 'down' = 'up'): T[] {
     let r = [ get(this, path) ];
 
     const method = ('walk_' + direction) as keyof Rnode;

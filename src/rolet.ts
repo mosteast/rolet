@@ -2,7 +2,7 @@ import { flatten } from 'lodash';
 import uniq from 'lodash.uniq';
 import { Conflict_role_name } from './error/conflict_role_name';
 import { Rnode } from './rnode';
-import { T_action, T_role } from './type';
+import { T_action, T_actions, T_role } from './type';
 
 export const DEFAULT_ROOT = '_public_';
 
@@ -42,7 +42,7 @@ export class Rolet<T_custom = any> {
   /**
    * All actions
    */
-  actions!: string[];
+  actions!: T_actions[];
 
   /**
    * Options
@@ -79,8 +79,8 @@ export class Rolet<T_custom = any> {
    * Analyze Rnode tree and create cache
    */
   analyze() {
-    let roles: string[]   = [],
-        actions: string[] = [];
+    let roles: string[]      = [],
+        actions: T_actions[] = [];
 
     const r: Rnode = this.root;
 
@@ -133,15 +133,14 @@ export class Rolet<T_custom = any> {
   /**
    * Collect complete roles upward through ancestors
    */
-  calc_complete_actions(roles: string[] | string): string[] {
+  calc_complete_actions(roles: string[] | string): T_actions {
     if (typeof roles === 'string') { roles = [ roles ]; }
-    let r: string[] = [];
+    let r: T_actions[] = [];
     for (const it of roles) {
-      r = r.concat(this._calc_complete_values_single(it, 'actions') || []);
+      r = r.concat(this._calc_complete_values_single<T_actions>(it, 'actions') || []);
     }
 
-    r = flatten(r);
-    return uniq(r);
+    return uniq(flatten(r));
   }
 
   /**
@@ -171,7 +170,7 @@ export class Rolet<T_custom = any> {
   /**
    * Collect roles upward through ancestors
    */
-  private _calc_complete_values_single(role: string, path: string): string[] | undefined {
+  private _calc_complete_values_single<T = any>(role: string, path: string): T[] | undefined {
     const node = Rnode.find_by_role(this.root, role);
     return node?.collect_values(path);
   }
