@@ -1,3 +1,4 @@
+import { flatten } from 'lodash';
 import uniq from 'lodash.uniq';
 import { Conflict_role_name } from './error/conflict_role_name';
 import { Rnode } from './rnode';
@@ -127,6 +128,20 @@ export class Rolet<T_custom = any> {
     }
 
     return !! all;
+  }
+
+  /**
+   * Collect complete roles upward through ancestors
+   */
+  calc_complete_actions(roles: string[] | string): string[] {
+    if (typeof roles === 'string') { roles = [ roles ]; }
+    let r: string[] = [];
+    for (const it of roles) {
+      r = r.concat(this._calc_complete_values_single(it, 'actions') || []);
+    }
+
+    r = flatten(r);
+    return uniq(r);
   }
 
   /**

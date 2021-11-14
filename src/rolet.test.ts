@@ -266,3 +266,54 @@ it('is', async () => {
   expect(rolet.is([], 'aa1')).toBeFalsy();
   expect(rolet.is([], 'invalid_name')).toBeFalsy();
 });
+
+it('calc_complete_actions', () => {
+  const rolet = new Rolet({
+    actions: [ 'root.action1' ],
+    children: {
+      a: {
+        actions: [ 'a.action1' ],
+        children: {
+          aa1: {
+            actions: [ 'aa1.action1', 'aa1.action2' ],
+            children: {},
+          },
+          aa2: {
+            actions: [ 'aa2.action1', 'aa2.action2' ],
+          },
+        },
+      },
+      b: {
+        actions: [ 'b.action1' ],
+        children: {
+          bb1: {
+            actions: [ 'bb1.action1', 'bb1.action2' ],
+          },
+          bb2: {
+            actions: [ 'bb2.action1', 'bb2.action2' ],
+          },
+          bb3: {
+            actions: [ 'bb3.action1', 'bb3.action2' ],
+            children: {
+              bbb1: {
+                actions: [ 'bbb1.action1', 'bbb1.action2' ],
+                children: {
+                  bbbb1: {
+                    actions: [ 'bbbb1.action1', 'bbbb1.action2' ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  expect(rolet.calc_complete_actions([ 'a' ])).toEqual([ 'a.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions([ 'aa1' ])).toEqual([ 'aa1.action1', 'aa1.action2', 'a.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions([ 'aa2' ])).toEqual([ 'aa2.action1', 'aa2.action2', 'a.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions([ 'b' ])).toEqual([ 'b.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions([ 'bb1' ])).toEqual([ 'bb1.action1', 'bb1.action2', 'b.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions([ 'bb2' ])).toEqual([ 'bb2.action1', 'bb2.action2', 'b.action1', 'root.action1' ]);
+});
