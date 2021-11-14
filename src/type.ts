@@ -4,7 +4,7 @@
  * Defines all roles and their abilities.
  */
 export interface T_roles<T_custom = any> {
-  [role: string]: T_role<T_custom>
+  [role: string]: T_role<T_custom>;
 }
 
 export interface T_role<T_custom = any> {
@@ -22,28 +22,28 @@ export interface T_role<T_custom = any> {
    * @example
    * `[ changePasswordFn , Order.refundMethod ]`
    */
-  actions?: T_actions
+  actions?: T_actions;
 
   /**
    * Child nodes
    *
    * Its descendents, which will inherit all the abilities defined in `can`.
    */
-  children?: T_roles
+  children?: T_roles<T_custom>;
 
   /**
    * Custom data
    *
    * All custom data should placed in here.
    */
-  custom?: T_custom
+  custom?: T_custom;
 
   /**
    * Same as key name
    *
    * This field will be auto generated when convert to rnode.
    */
-  role?: string
+  role?: string;
 }
 
 export type T_actions = T_action[]
