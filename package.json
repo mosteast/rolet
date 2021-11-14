@@ -26,17 +26,17 @@
   "author": "Mosteast team",
   "license": "ISC",
   "devDependencies": {
-    "@types/fs-extra": "^8.0.1",
-    "@types/jest": "^24.0.23",
+    "@types/fs-extra": "^9.0.13",
+    "@types/jest": "^27.0.2",
     "@types/lodash.uniq": "^4.5.6",
-    "@types/node": "^11.15.3",
-    "@types/shelljs": "^0.8.6",
-    "fs-extra": "^8.1.0",
-    "jest": "^26.6.3",
+    "@types/node": "^16.11.7",
+    "@types/shelljs": "^0.8.9",
+    "fs-extra": "^10.0.0",
+    "jest": "^27.3.1",
     "shelljs": "^0.8.3",
-    "ts-jest": "^26.5.4",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.3"
+    "ts-jest": "^27.0.7",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.4.4"
   },
   "dependencies": {
     "lodash.uniq": "^4.5.0"

@@ -1,5 +1,4 @@
 import { Conflict_role_name } from './error/conflict_role_name';
-import { Lack_role } from './error/lack_role';
 import { Rolet } from './rolet';
 import { T_role } from './type';
 
@@ -266,5 +265,4 @@ it('is', async () => {
   expect(rolet.is([], 'a')).toBeFalsy();
   expect(rolet.is([], 'aa1')).toBeFalsy();
   expect(rolet.is([], 'invalid_name')).toBeFalsy();
-  expect(() => rolet.is([ 'invalid_name' ], 'a')).toThrow(Lack_role);
 });
