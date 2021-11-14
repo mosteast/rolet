@@ -310,10 +310,10 @@ it('calc_complete_actions', () => {
     },
   });
 
-  expect(rolet.calc_complete_actions([ 'a' ])).toEqual([ 'a.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions([ 'aa1' ])).toEqual([ 'aa1.action1', 'aa1.action2', 'a.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions([ 'aa2' ])).toEqual([ 'aa2.action1', 'aa2.action2', 'a.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions([ 'b' ])).toEqual([ 'b.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions([ 'bb1' ])).toEqual([ 'bb1.action1', 'bb1.action2', 'b.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions([ 'bb2' ])).toEqual([ 'bb2.action1', 'bb2.action2', 'b.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions('a')).toEqual([ 'a.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions('aa1')).toEqual([ 'aa1.action1', 'aa1.action2', 'a.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions('aa2')).toEqual([ 'aa2.action1', 'aa2.action2', 'a.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions('b')).toEqual([ 'b.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions('bb1')).toEqual([ 'bb1.action1', 'bb1.action2', 'b.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions('bb2')).toEqual([ 'bb2.action1', 'bb2.action2', 'b.action1', 'root.action1' ]);
 });
