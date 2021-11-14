@@ -1,3 +1,4 @@
+import { get, isNil } from 'lodash';
 import uniq from 'lodash.uniq';
 import { T_action, T_actions, T_role, T_roles } from './type';
 
@@ -86,10 +87,21 @@ export class Rnode<T_custom = any> implements T_role {
    * Sum node roles
    */
   collect_roles(direction: 'up' | 'down' = 'up'): string[] {
-    let r = [ this.role ];
+    return this.collect_values('role', direction);
+  }
+
+  /**
+   * Sum node roles
+   */
+  collect_values(path: keyof Rnode | string, direction: 'up' | 'down' = 'up'): string[] {
+    let r = [ get(this, path) ];
 
     const method = ('walk_' + direction) as keyof Rnode;
-    this[method]((it: Rnode) => r.push(it.role));
+    this[method]((it: Rnode) => {
+      const value = get(it, path);
+      if (isNil(value)) { return; }
+      r.push(value);
+    });
 
     return uniq(r);
   }

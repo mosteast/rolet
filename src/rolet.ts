@@ -10,12 +10,12 @@ export interface T_opt {
    * Name for default root node (since root node doesn't have a
    * parent which contains it's key name)
    */
-  root_name?: string
+  root_name?: string;
 
   /**
    * Super role, which pass all permissions
    */
-  super?: string
+  super?: string;
 }
 
 /**
@@ -117,7 +117,7 @@ export class Rolet<T_custom = any> {
     if (this.opt.super && roles.includes(this.opt.super)) { return true; }
 
     for (const it of roles) {
-      const collection = this._calc_complete_roles_single(it);
+      const collection = this._calc_complete_values_single(it, 'role');
       if ( ! collection?.length) { continue; }
       if (all) {
         if ( ! collection.includes(role)) { return false; }
@@ -130,13 +130,25 @@ export class Rolet<T_custom = any> {
   }
 
   /**
-   * Collect roles upward through ancestors
+   * Collect complete roles upward through ancestors
    */
   calc_complete_roles(roles: string[] | string): string[] {
     if (typeof roles === 'string') { roles = [ roles ]; }
     let r: string[] = [];
     for (const it of roles) {
-      r = r.concat(this._calc_complete_roles_single(it) || []);
+      r = r.concat(this._calc_complete_values_single(it, 'role') || []);
+    }
+    return uniq(r);
+  }
+
+  /**
+   * Collect complete roles upward through ancestors
+   */
+  calc_complete_values(roles: string[] | string, path: string, direction: 'up' | 'down' = 'up'): string[] {
+    if (typeof roles === 'string') { roles = [ roles ]; }
+    let r: string[] = [];
+    for (const it of roles) {
+      r = r.concat(this._calc_complete_values_single(it, path) || []);
     }
     return uniq(r);
   }
@@ -144,9 +156,9 @@ export class Rolet<T_custom = any> {
   /**
    * Collect roles upward through ancestors
    */
-  private _calc_complete_roles_single(role: string): string[] | undefined {
+  private _calc_complete_values_single(role: string, path: string): string[] | undefined {
     const node = Rnode.find_by_role(this.root, role);
-    return node?.collect_roles();
+    return node?.collect_values(path);
   }
 
   /**

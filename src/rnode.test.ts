@@ -139,4 +139,37 @@ it('collect_actions()', async () => {
   expect(ins.children?.b.children?.b1.collect_actions()).toEqual([ 'b1_action1', 'b1_action2', 'b_action1', 'b_action2', 'root_action1' ]);
 });
 
+it('collect_values()', async () => {
+  const ins = new Rnode(DEFAULT_ROOT, {
+    custom: { x: 'root' },
+    actions: [ 'root_action1' ],
+    children: {
+      a: {
+        custom: { x: 'a' },
+        children: {
+          a1: {
+            custom: { x: 'a1' },
+          },
+          a2: {
+            custom: { x: 'a2' },
+          },
+        },
+      },
+      b: {
+        custom: { x: 'b' },
+        children: {
+          b1: {
+            custom: { x: 'b1' },
+          },
+        },
+      },
+    },
+  });
 
+  expect(ins.collect_values('custom.x')).toEqual([ 'root' ]);
+  expect(ins.children?.a.collect_values('custom.x')).toEqual([ 'a', 'root' ]);
+  expect(ins.children?.a.children?.a1.collect_values('custom.x')).toEqual([ 'a1', 'a', 'root' ]);
+  expect(ins.children?.a.children?.a2.collect_values('custom.x')).toEqual([ 'a2', 'a', 'root' ]);
+  expect(ins.children?.b.collect_values('custom.x')).toEqual([ 'b', 'root' ]);
+  expect(ins.children?.b.children?.b1.collect_values('custom.x')).toEqual([ 'b1', 'b', 'root' ]);
+});
