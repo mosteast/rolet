@@ -158,13 +158,14 @@ export class Rolet<T_custom = any> {
   /**
    * Collect complete roles upward through ancestors
    */
-  calc_complete_values(roles: string[] | string, path: string, direction: 'up' | 'down' = 'up'): string[] {
+  calc_complete_values<T = any>(roles: string[] | string, path: string, direction: 'up' | 'down' = 'up'): T[] {
     if (typeof roles === 'string') { roles = [ roles ]; }
-    let r: string[] = [];
+    let r: T[] = [];
     for (const it of roles) {
       r = r.concat(this._calc_complete_values_single(it, path) || []);
     }
-    return uniq(r);
+
+    return uniq<T>(r);
   }
 
   /**
