@@ -112,8 +112,7 @@ export class Rolet<T_custom = any> {
    * is(['_public_'], 'employee') --> false
    */
   is(roles: string[] | string, role: string, { all }: { all?: boolean } = { all: false }): boolean {
-    if (typeof roles === 'string') { roles = [ roles ]; }
-    if ( ! roles?.length) { roles = [ this.opt.root_name ]; }
+    roles = this.roles_normalize(roles);
 
     if (this.opt.super && roles.includes(this.opt.super)) { return true; }
 
@@ -134,7 +133,8 @@ export class Rolet<T_custom = any> {
    * Collect complete roles upward through ancestors
    */
   calc_complete_actions(roles: string[] | string): T_actions {
-    if (typeof roles === 'string') { roles = [ roles ]; }
+    roles = this.roles_normalize(roles);
+
     let r: T_actions[] = [];
     for (const it of roles) {
       r = r.concat(this._calc_complete_values_single<T_actions>(it, 'actions') || []);
@@ -147,7 +147,8 @@ export class Rolet<T_custom = any> {
    * Collect complete roles upward through ancestors
    */
   calc_complete_roles(roles: string[] | string): string[] {
-    if (typeof roles === 'string') { roles = [ roles ]; }
+    roles = this.roles_normalize(roles);
+
     let r: string[] = [];
     for (const it of roles) {
       r = r.concat(this._calc_complete_values_single(it, 'role') || []);
@@ -159,7 +160,8 @@ export class Rolet<T_custom = any> {
    * Collect complete roles upward through ancestors
    */
   calc_complete_values<T = any>(roles: string[] | string, path: string, direction: 'up' | 'down' = 'up'): T[] {
-    if (typeof roles === 'string') { roles = [ roles ]; }
+    roles = this.roles_normalize(roles);
+
     let r: T[] = [];
     for (const it of roles) {
       r = r.concat(this._calc_complete_values_single(it, path) || []);
@@ -182,19 +184,9 @@ export class Rolet<T_custom = any> {
    * @param {T_action} action
    */
   can(roles: string | string[], action: string | object | Function | RegExp): boolean {
-    if (roles) {
-      if (typeof roles === 'string') {
-        roles = [ roles ];
-      }
-    } else {
-      roles = [];
-    }
+    roles = this.roles_normalize(roles);
 
     if (this.opt.super && roles.includes(this.opt.super)) { return true; }
-
-    if ( ! roles.length) {
-      roles = [ DEFAULT_ROOT ];
-    }
 
     for (let it of roles) {
       const actions = this
@@ -219,5 +211,21 @@ export class Rolet<T_custom = any> {
 
   find_by_role(role_name: string) {
     return Rnode.find_by_role(this.root, role_name);
+  }
+
+  roles_normalize(roles: string | string[]): string[] {
+    if ( ! roles) {
+      roles = [];
+    }
+
+    if ( ! Array.isArray(roles)) {
+      roles = [ roles ];
+    }
+    const root = this.opt.root_name;
+    if ( ! roles.includes(root)) {
+      roles.push(root);
+    }
+
+    return roles;
   }
 }
