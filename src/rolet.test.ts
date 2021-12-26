@@ -324,5 +324,13 @@ it('enum roles', async () => {
     b = 'b',
   }
 
-  new Rolet<any, N_role>({});
+  new Rolet<any, N_role>({
+    children: {
+      [N_role.a]: {
+        children: {
+          [N_role.b]: {},
+        },
+      },
+    },
+  });
 });
