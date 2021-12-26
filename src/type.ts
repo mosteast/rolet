@@ -3,11 +3,11 @@
  *
  * Defines all roles and their abilities.
  */
-export interface T_roles<D = any, K = string> {
-  [role: string]: T_role<D, K>;
+export type T_roles<D = any, K extends string = string> = {
+  [role in K]?: T_role<D, K>;
 }
 
-export interface T_role<D = any, K = string> {
+export interface T_role<D = any, K extends string = string> {
   /**
    * List of abilities
    *

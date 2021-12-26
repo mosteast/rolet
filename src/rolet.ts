@@ -22,7 +22,7 @@ export interface T_opt<D = any, K = string> {
 /**
  * Role and permission manager
  */
-export class Rolet<D = any, K = string> {
+export class Rolet<D = any, K extends string = string> {
 
   /**
    * All actions

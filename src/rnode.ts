@@ -8,7 +8,7 @@ import { T_action, T_actions, T_role, T_roles } from './type';
  * Each node stands for a role, and there is a set of potential
  * permissions behind it.
  */
-export class Rnode<D = any, K = string> implements T_role<D, K> {
+export class Rnode<D = any, K extends string = string> implements T_role<D, K> {
   /**
    * Action type
    */
@@ -159,7 +159,7 @@ export class Rnode<D = any, K = string> implements T_role<D, K> {
     const children = this.children;
     if (children) {
       for (let key in children) {
-        children[key].walk_down(fn);
+        children[key]?.walk_down(fn);
       }
     }
   }
@@ -185,7 +185,7 @@ export class Rnode<D = any, K = string> implements T_role<D, K> {
   /**
    * Find node by role name
    */
-  static find_by_role<D = any, K = string>(from: Rnode<D, K>, name: K): Rnode<D, K> | undefined {
+  static find_by_role<D = any, K extends string = string>(from: Rnode<D, K>, name: K): Rnode<D, K> | undefined {
     let role: Rnode<D, K>;
 
     from.walk_down(it => {
@@ -202,11 +202,11 @@ export class Rnode<D = any, K = string> implements T_role<D, K> {
   }
 }
 
-export type T_rnodes<D = any, K = any> = {
-  [key in (keyof K | string)]: Rnode<D, K>;
+export type T_rnodes<D = any, K extends string = string> = {
+  [key in K]?: Rnode<D, K>;
 };
 
-export interface T_walk_opt<D = any, K = string> {
+export interface T_walk_opt<D = any, K extends string = string> {
   detect_boolean?: boolean
   /**
    * Stop condition

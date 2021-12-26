@@ -264,7 +264,7 @@ it('is', async () => {
   expect(rolet.is(['b'], 'a')).toBeFalsy();
   expect(rolet.is([], 'a')).toBeFalsy();
   expect(rolet.is([], 'aa1')).toBeFalsy();
-  expect(rolet.is([], 'invalid_name')).toBeFalsy();
+  expect(rolet.is([], 'invalid_name' as any)).toBeFalsy();
 });
 
 it('calc_complete_actions', () => {
@@ -331,6 +331,19 @@ it('enum roles', async () => {
           [N_role.b]: {},
         },
       },
+    },
+  });
+  new Rolet<any, string>({
+    children: {
+      [N_role.a]: {},
+      aa: {},
+    },
+  });
+  new Rolet<any, string | N_role>({
+    children: {
+      [N_role.a]: {},
+      [N_role.b]: {},
+      aa: {},
     },
   });
 });
