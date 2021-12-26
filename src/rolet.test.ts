@@ -4,7 +4,7 @@ import { T_role } from './type';
 
 it('will validate role name', async () => {
   const invalid_tree_with_same_role_names: T_role = {
-    actions: [ 'a_can1' ],
+    actions: ['a_can1'],
     children: {
       admin: {
         actions: [],
@@ -31,19 +31,19 @@ it('typical usage', async () => {
   //             └─enterprise
 
   const rolet: Rolet = new Rolet({ // Root node, default name '_public_'
-    actions: [ 'user.signup', 'user.login' ],
+    actions: ['user.signup', 'user.login'],
     children: {
       regular: { // Inherit _public_ actions
-        actions: [ 'user.logout', 'user.upgrade' ],
+        actions: ['user.logout', 'user.upgrade'],
         children: {
           salesman: { // Inherit _public_, regular actions
-            actions: [ 'salesman.action1', 'salesman.action2' ],
+            actions: ['salesman.action1', 'salesman.action2'],
           },
           premium: {  // Inherit _public_, regular actions
-            actions: [ 'premium.action1', 'premium.action2' ],
+            actions: ['premium.action1', 'premium.action2'],
             children: {
               enterprise: {  // Inherit _public_, regular, premium actions
-                actions: [ 'enterprise.action1', 'enterprise.action2' ],
+                actions: ['enterprise.action1', 'enterprise.action2'],
               },
             },
           },
@@ -89,19 +89,19 @@ it('use function and regex as actions', async () => {
   const rolet: Rolet = new Rolet({
     // Action function, will be compared internally using `===`,
     // Function (or any other type) will not be executed (or changed)
-    actions: [ user_signup, 'user.login' ],
+    actions: [user_signup, 'user.login'],
     children: {
       regular: {
-        actions: [ 'user.logout', 'user.upgrade' ],
+        actions: ['user.logout', 'user.upgrade'],
         children: {
           salesman: {
             // Action regular expression, which matches actions that start with
             // 'salesman.'
-            actions: [ /^salesman\./ ],
+            actions: [/^salesman\./],
           },
           premium: {
             // matches actions that start with 'premium'
-            actions: [ /^premium/ ],
+            actions: [/^premium/],
             children: {
               enterprise: {
                 actions: [
@@ -150,37 +150,37 @@ it('use function and regex as actions', async () => {
 
 it('can', async () => {
   const rolet = new Rolet({
-    actions: [ 'root.action1' ],
+    actions: ['root.action1'],
     children: {
       a: {
-        actions: [ 'a.action1' ],
+        actions: ['a.action1'],
         children: {
           aa1: {
-            actions: [ 'aa1.action1', 'aa1.action2' ],
+            actions: ['aa1.action1', 'aa1.action2'],
             children: {},
           },
           aa2: {
-            actions: [ 'aa2.action1', 'aa2.action2' ],
+            actions: ['aa2.action1', 'aa2.action2'],
           },
         },
       },
       b: {
-        actions: [ 'b.action1' ],
+        actions: ['b.action1'],
         children: {
           bb1: {
-            actions: [ 'bb1.action1', 'bb1.action2' ],
+            actions: ['bb1.action1', 'bb1.action2'],
           },
           bb2: {
-            actions: [ 'bb2.action1', 'bb2.action2' ],
+            actions: ['bb2.action1', 'bb2.action2'],
           },
           bb3: {
-            actions: [ 'bb3.action1', 'bb3.action2' ],
+            actions: ['bb3.action1', 'bb3.action2'],
             children: {
               bbb1: {
-                actions: [ 'bbb1.action1', 'bbb1.action2' ],
+                actions: ['bbb1.action1', 'bbb1.action2'],
                 children: {
                   bbbb1: {
-                    actions: [ 'bbbb1.action1', 'bbbb1.action2' ],
+                    actions: ['bbbb1.action1', 'bbbb1.action2'],
                   },
                 },
               },
@@ -213,11 +213,11 @@ it('can', async () => {
   expect(rolet.can('bbbb1', 'b.action1')).toBeTruthy();
 
   // Any can
-  expect(rolet.can([ 'b' ], 'b.action1')).toBeTruthy();
-  expect(rolet.can([ 'a', 'b' ], 'b.action1')).toBeTruthy();
-  expect(rolet.can([ 'b', 'bbbb1' ], 'bbb1.action2')).toBeTruthy();
-  expect(rolet.can([ 'bb1', 'b' ], 'bb2.action1')).toBeFalsy();
-  expect(rolet.can([ 'b' ], 'bbbb1.action2')).toBeFalsy();
+  expect(rolet.can(['b'], 'b.action1')).toBeTruthy();
+  expect(rolet.can(['a', 'b'], 'b.action1')).toBeTruthy();
+  expect(rolet.can(['b', 'bbbb1'], 'bbb1.action2')).toBeTruthy();
+  expect(rolet.can(['bb1', 'b'], 'bb2.action1')).toBeFalsy();
+  expect(rolet.can(['b'], 'bbbb1.action2')).toBeFalsy();
 });
 
 it('is', async () => {
@@ -251,17 +251,17 @@ it('is', async () => {
     },
   });
 
-  expect(rolet.is([ 'aa2' ], 'a')).toBeTruthy();
-  expect(rolet.is([ 'aa2' ], 'a')).toBeTruthy();
-  expect(rolet.is([ 'aaa1' ], 'a')).toBeTruthy();
-  expect(rolet.is([ 'a', 'b' ], 'a')).toBeTruthy();
-  expect(rolet.is([ 'aaa1', 'b' ], 'aa1')).toBeTruthy();
-  expect(rolet.is([ 'aaa1', 'b' ], 'b')).toBeTruthy();
-  expect(rolet.is([ 'aaa1', 'bb1' ], 'b')).toBeTruthy();
+  expect(rolet.is(['aa2'], 'a')).toBeTruthy();
+  expect(rolet.is(['aa2'], 'a')).toBeTruthy();
+  expect(rolet.is(['aaa1'], 'a')).toBeTruthy();
+  expect(rolet.is(['a', 'b'], 'a')).toBeTruthy();
+  expect(rolet.is(['aaa1', 'b'], 'aa1')).toBeTruthy();
+  expect(rolet.is(['aaa1', 'b'], 'b')).toBeTruthy();
+  expect(rolet.is(['aaa1', 'bb1'], 'b')).toBeTruthy();
 
-  expect(rolet.is([ 'b' ], 'bb1')).toBeFalsy();
-  expect(rolet.is([ 'aaa1' ], 'b')).toBeFalsy();
-  expect(rolet.is([ 'b' ], 'a')).toBeFalsy();
+  expect(rolet.is(['b'], 'bb1')).toBeFalsy();
+  expect(rolet.is(['aaa1'], 'b')).toBeFalsy();
+  expect(rolet.is(['b'], 'a')).toBeFalsy();
   expect(rolet.is([], 'a')).toBeFalsy();
   expect(rolet.is([], 'aa1')).toBeFalsy();
   expect(rolet.is([], 'invalid_name')).toBeFalsy();
@@ -269,37 +269,37 @@ it('is', async () => {
 
 it('calc_complete_actions', () => {
   const rolet = new Rolet({
-    actions: [ 'root.action1' ],
+    actions: ['root.action1'],
     children: {
       a: {
-        actions: [ 'a.action1' ],
+        actions: ['a.action1'],
         children: {
           aa1: {
-            actions: [ 'aa1.action1', 'aa1.action2' ],
+            actions: ['aa1.action1', 'aa1.action2'],
             children: {},
           },
           aa2: {
-            actions: [ 'aa2.action1', 'aa2.action2' ],
+            actions: ['aa2.action1', 'aa2.action2'],
           },
         },
       },
       b: {
-        actions: [ 'b.action1' ],
+        actions: ['b.action1'],
         children: {
           bb1: {
-            actions: [ 'bb1.action1', 'bb1.action2' ],
+            actions: ['bb1.action1', 'bb1.action2'],
           },
           bb2: {
-            actions: [ 'bb2.action1', 'bb2.action2' ],
+            actions: ['bb2.action1', 'bb2.action2'],
           },
           bb3: {
-            actions: [ 'bb3.action1', 'bb3.action2' ],
+            actions: ['bb3.action1', 'bb3.action2'],
             children: {
               bbb1: {
-                actions: [ 'bbb1.action1', 'bbb1.action2' ],
+                actions: ['bbb1.action1', 'bbb1.action2'],
                 children: {
                   bbbb1: {
-                    actions: [ 'bbbb1.action1', 'bbbb1.action2' ],
+                    actions: ['bbbb1.action1', 'bbbb1.action2'],
                   },
                 },
               },
@@ -310,10 +310,19 @@ it('calc_complete_actions', () => {
     },
   });
 
-  expect(rolet.calc_complete_actions('a')).toEqual([ 'a.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions('aa1')).toEqual([ 'aa1.action1', 'aa1.action2', 'a.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions('aa2')).toEqual([ 'aa2.action1', 'aa2.action2', 'a.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions('b')).toEqual([ 'b.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions('bb1')).toEqual([ 'bb1.action1', 'bb1.action2', 'b.action1', 'root.action1' ]);
-  expect(rolet.calc_complete_actions('bb2')).toEqual([ 'bb2.action1', 'bb2.action2', 'b.action1', 'root.action1' ]);
+  expect(rolet.calc_complete_actions('a')).toEqual(['a.action1', 'root.action1']);
+  expect(rolet.calc_complete_actions('aa1')).toEqual(['aa1.action1', 'aa1.action2', 'a.action1', 'root.action1']);
+  expect(rolet.calc_complete_actions('aa2')).toEqual(['aa2.action1', 'aa2.action2', 'a.action1', 'root.action1']);
+  expect(rolet.calc_complete_actions('b')).toEqual(['b.action1', 'root.action1']);
+  expect(rolet.calc_complete_actions('bb1')).toEqual(['bb1.action1', 'bb1.action2', 'b.action1', 'root.action1']);
+  expect(rolet.calc_complete_actions('bb2')).toEqual(['bb2.action1', 'bb2.action2', 'b.action1', 'root.action1']);
+});
+
+it('enum roles', async () => {
+  enum N_role {
+    a = 'a',
+    b = 'b',
+  }
+
+  new Rolet<any, N_role>({});
 });
