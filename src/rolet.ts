@@ -6,52 +6,48 @@ import { T_action, T_actions, T_role } from './type';
 
 export const DEFAULT_ROOT = '_public_';
 
-export interface T_opt {
+export interface T_opt<D = any, K = string> {
   /**
    * Name for default root node (since root node doesn't have a
    * parent which contains it's key name)
    */
-  root_name?: string;
+  root_name?: K;
 
   /**
    * Super role, which pass all permissions
    */
-  super?: string;
+  super?: K;
 }
 
 /**
  * Role and permission manager
  */
-export class Rolet<T_custom = any> {
-
-  /**
-   * Raw tree
-   */
-  raw!: T_role<T_custom>;
-
-  /**
-   * Parsed tree
-   */
-  root!: Rnode<T_custom>;
-
-  /**
-   * All roles as string
-   */
-  roles!: string[];
+export class Rolet<D = any, K = string> {
 
   /**
    * All actions
    */
   actions!: T_actions[];
-
+  /**
+   * Raw tree
+   */
+  raw!: T_role<D, K>;
+  /**
+   * All roles as string
+   */
+  roles!: K[];
+  /**
+   * Parsed tree
+   */
+  root!: Rnode<D, K>;
   /**
    * Options
    */
-  protected opt!: T_opt & { root_name: string };
+  protected opt!: T_opt<D, K> & { root_name: K };
 
-  constructor(tree: T_role<T_custom>, opt?: T_opt) {
+  constructor(tree: T_role<D, K>, opt?: T_opt<D, K>) {
     this.opt = {
-      root_name: DEFAULT_ROOT,
+      root_name: DEFAULT_ROOT as any,
       ...opt,
     };
 
@@ -59,36 +55,19 @@ export class Rolet<T_custom = any> {
   }
 
   /**
-   * Init rolet
-   * @param node
-   */
-  init(node: T_role<T_custom>) {
-    this.load(node);
-    this.analyze();
-  }
-
-  /**
-   * Define raw tree and create rnodes
-   */
-  load(node: T_role<T_custom>) {
-    this.raw = Object.freeze(node);
-    this.root = new Rnode<T_custom>(this.opt.root_name, node);
-  }
-
-  /**
    * Analyze Rnode tree and create cache
    */
   analyze() {
-    let roles: string[]      = [],
+    let roles: K[]           = [],
         actions: T_actions[] = [];
 
-    const r: Rnode = this.root;
+    const r: Rnode<D, K> = this.root;
 
     r.walk_down(node => {
-      const name = node.role;
+      const name = node.role as K;
 
       if (roles.includes(name)) {
-        throw new Conflict_role_name(name);
+        throw new Conflict_role_name<K>(name);
       } else {
         roles.push(name);
       }
@@ -101,38 +80,9 @@ export class Rolet<T_custom = any> {
   }
 
   /**
-   * Is {roles} a {role}?
-   *
-   * is(['admin'], 'admin') --> true
-   * is(['admin'], '_public_') --> true
-   * is(['admin', 'employee'], 'employee') --> true
-   *
-   * is(['employee'], 'admin') --> false
-   * is(['_public_'], 'admin') --> false
-   * is(['_public_'], 'employee') --> false
-   */
-  is(roles: string[] | string, role: string, { all }: { all?: boolean } = { all: false }): boolean {
-    roles = this.roles_normalize(roles);
-
-    if (this.opt.super && roles.includes(this.opt.super)) { return true; }
-
-    for (const it of roles) {
-      const collection = this._calc_complete_values_single(it, 'role');
-      if ( ! collection?.length) { continue; }
-      if (all) {
-        if ( ! collection.includes(role)) { return false; }
-      } else {
-        if (collection.includes(role)) { return true; }
-      }
-    }
-
-    return !! all;
-  }
-
-  /**
    * Collect complete roles upward through ancestors
    */
-  calc_complete_actions(roles: string[] | string): T_actions {
+  calc_complete_actions(roles: K[] | K): T_actions {
     roles = this.roles_normalize(roles);
 
     let r: T_actions[] = [];
@@ -146,12 +96,12 @@ export class Rolet<T_custom = any> {
   /**
    * Collect complete roles upward through ancestors
    */
-  calc_complete_roles(roles: string[] | string): string[] {
+  calc_complete_roles(roles: K[] | K): K[] {
     roles = this.roles_normalize(roles);
 
-    let r: string[] = [];
+    let r: K[] = [];
     for (const it of roles) {
-      r = r.concat(this._calc_complete_values_single(it, 'role') || []);
+      r = r.concat(this._calc_complete_values_single<K>(it, 'role') || []);
     }
     return uniq(r);
   }
@@ -159,7 +109,7 @@ export class Rolet<T_custom = any> {
   /**
    * Collect complete roles upward through ancestors
    */
-  calc_complete_values<T = any>(roles: string[] | string, path: string, direction: 'up' | 'down' = 'up'): T[] {
+  calc_complete_values<T = any>(roles: K[] | K, path: string, direction: 'up' | 'down' = 'up'): T[] {
     roles = this.roles_normalize(roles);
 
     let r: T[] = [];
@@ -171,19 +121,11 @@ export class Rolet<T_custom = any> {
   }
 
   /**
-   * Collect roles upward through ancestors
-   */
-  private _calc_complete_values_single<T = any>(role: string, path: string): T[] | undefined {
-    const node = Rnode.find_by_role(this.root, role);
-    return node?.collect_values(path);
-  }
-
-  /**
    * Permission check
    * @param roles
    * @param {T_action} action
    */
-  can(roles: string | string[], action: string | object | Function | RegExp): boolean {
+  can(roles: K | K[], action: T_action): boolean {
     roles = this.roles_normalize(roles);
 
     if (this.opt.super && roles.includes(this.opt.super)) { return true; }
@@ -193,7 +135,7 @@ export class Rolet<T_custom = any> {
         .find_by_role(it)
         ?.collect_actions();
 
-      if ( ! actions?.length) { continue; }
+      if (!actions?.length) { continue; }
 
       for (let it2 of actions) {
         if (it2 instanceof RegExp && typeof action === 'string' && it2.test(action)) {
@@ -209,23 +151,77 @@ export class Rolet<T_custom = any> {
     return false;
   }
 
-  find_by_role(role_name: string) {
+  find_by_role(role_name: K) {
     return Rnode.find_by_role(this.root, role_name);
   }
 
-  roles_normalize(roles: string | string[]): string[] {
-    if ( ! roles) {
+  /**
+   * Init rolet
+   * @param node
+   */
+  init(node: T_role<D, K>) {
+    this.load(node);
+    this.analyze();
+  }
+
+  /**
+   * Is {roles} a {role}?
+   *
+   * is(['admin'], 'admin') --> true
+   * is(['admin'], '_public_') --> true
+   * is(['admin', 'employee'], 'employee') --> true
+   *
+   * is(['employee'], 'admin') --> false
+   * is(['_public_'], 'admin') --> false
+   * is(['_public_'], 'employee') --> false
+   */
+  is(roles: K[] | K, role: K, { all }: { all?: boolean } = { all: false }): boolean {
+    roles = this.roles_normalize(roles);
+
+    if (this.opt.super && roles.includes(this.opt.super)) { return true; }
+
+    for (const it of roles) {
+      const collection = this._calc_complete_values_single(it, 'role');
+      if (!collection?.length) { continue; }
+      if (all) {
+        if (!collection.includes(role)) { return false; }
+      } else {
+        if (collection.includes(role)) { return true; }
+      }
+    }
+
+    return !!all;
+  }
+
+  /**
+   * Define raw tree and create rnodes
+   */
+  load(node: T_role<D, K>) {
+    this.raw = Object.freeze(node);
+    this.root = new Rnode<D, K>(this.opt.root_name, node);
+  }
+
+  roles_normalize(roles: K | K[]): K[] {
+    if (!roles) {
       roles = [];
     }
 
-    if ( ! Array.isArray(roles)) {
-      roles = [ roles ];
+    if (!Array.isArray(roles)) {
+      roles = [roles];
     }
-    const root = this.opt.root_name;
-    if ( ! roles.includes(root)) {
+    const root = this.opt.root_name as K;
+    if (!roles.includes(root)) {
       roles.push(root);
     }
 
     return roles;
+  }
+
+  /**
+   * Collect roles upward through ancestors
+   */
+  private _calc_complete_values_single<V>(role: K, path: string): V[] | undefined {
+    const node = Rnode.find_by_role<D, K>(this.root, role);
+    return node?.collect_values(path);
   }
 }

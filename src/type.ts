@@ -3,11 +3,11 @@
  *
  * Defines all roles and their abilities.
  */
-export interface T_roles<T_custom = any> {
-  [role: string]: T_role<T_custom>;
+export interface T_roles<D = any, K = string> {
+  [role: string]: T_role<D, K>;
 }
 
-export interface T_role<T_custom = any> {
+export interface T_role<D = any, K = string> {
   /**
    * List of abilities
    *
@@ -29,21 +29,21 @@ export interface T_role<T_custom = any> {
    *
    * Its descendents, which will inherit all the abilities defined in `can`.
    */
-  children?: T_roles<T_custom>;
+  children?: T_roles<D, K>;
 
   /**
    * Custom data
    *
    * All custom data should placed in here.
    */
-  custom?: T_custom;
+  custom?: D;
 
   /**
    * Same as key name
    *
    * This field will be auto generated when convert to rnode.
    */
-  role?: string;
+  role?: K;
 }
 
 export type T_actions = T_action[]

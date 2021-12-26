@@ -8,35 +8,31 @@ import { T_action, T_actions, T_role, T_roles } from './type';
  * Each node stands for a role, and there is a set of potential
  * permissions behind it.
  */
-export class Rnode<T_custom = any> implements T_role {
+export class Rnode<D = any, K = string> implements T_role<D, K> {
   /**
-   * @see {T_role}
-   */
-  role: string;
-
-  /**
-   * @see {T_role}
+   * Action type
    */
   actions?: T_actions;
-
+  /**
+   * Child nodes map
+   */
+  children?: T_rnodes<D, K>;
   /**
    * @see {T_role}
    */
-  children?: T_rnodes;
-
+  custom?: D;
   /**
    * Parent node
    */
-  parent?: Rnode<T_custom>;
-
+  parent?: Rnode<D, K>;
   /**
-   * @see {T_role}
+   * Role name
    */
-  custom: any;
+  role?: K;
 
   constructor()
-  constructor(name: string, role: T_role<T_custom>)
-  constructor(name?: any, role?: any) {
+  constructor(name: K, role: T_role<D, K>)
+  constructor(name?: K, role?: any) {
     this.role = name;
 
     if (role) {
@@ -45,41 +41,11 @@ export class Rnode<T_custom = any> implements T_role {
   }
 
   /**
-   * Convert children to rnodes
-   */
-  convert(role: T_role) {
-
-    for (let key in role) {
-      // @ts-ignore
-      this[key] = role[key];
-    }
-
-    const children = this.children;
-
-    for (let key in children) {
-      const child = children[key] = new Rnode(key, children[key]);
-      child.parent = this;
-    }
-  }
-
-  /**
-   * Count direct children
-   * @returns {number}
-   */
-  count_children(): number {
-    const children = this.children;
-    if ( ! children) {return 0;}
-    return Object.keys(children).length;
-  }
-
-  /**
    * Get all actions (include inherited actions)
    */
   collect_actions(): T_action[] {
-    let r: string[] = [];
-
-    this.walk_up(it => r = r.concat(it.actions as string[] || []));
-
+    let r: T_action[] = [];
+    this.walk_up(it => r = r.concat(it.actions || []));
     return uniq(r);
   }
 
@@ -94,9 +60,10 @@ export class Rnode<T_custom = any> implements T_role {
    * Sum node roles
    */
   collect_values<T = any>(path: keyof Rnode | string, direction: 'up' | 'down' = 'up'): T[] {
-    let r = [ get(this, path) ];
+    let r = [get(this, path)];
 
     const method = ('walk_' + direction) as keyof Rnode;
+    // @ts-ignore
     this[method]((it: Rnode) => {
       const value = get(it, path);
       if (isNil(value)) { return; }
@@ -107,13 +74,23 @@ export class Rnode<T_custom = any> implements T_role {
   }
 
   /**
-   * Count all descendants
-   * @returns {number}
+   * Convert children to rnodes
    */
-  count_descendants(): number {
-    let count = 0;
-    this.walk_down(node => count += node.count_children());
-    return count;
+  convert(role: T_role<D, K>) {
+
+    for (let key in role) {
+      // @ts-ignore
+      this[key] = role[key];
+    }
+
+    const children = this.children as T_rnodes<D, K>;
+
+    if (!children) { return; }
+    for (let key in children) {
+      // @ts-ignore
+      const child: Rnode<D, K> = children[key] = new Rnode(key, children[key]);
+      child.parent = this;
+    }
   }
 
   /**
@@ -127,20 +104,42 @@ export class Rnode<T_custom = any> implements T_role {
   }
 
   /**
-   * Walk along parents
-   * @param {{(node: Rnode)}} fn
+   * Count direct children
+   * @returns {number}
    */
-  walk_up(fn: (node: Rnode, name: string) => any, opt?: T_walk_opt) {
-    opt = {
-      detect_boolean: false,
-      ...opt,
-    };
+  count_children(): number {
+    const children = this.children;
+    if (!children) {return 0;}
+    return Object.keys(children).length;
+  }
 
-    if (opt.stop && opt.stop(this)) {return;}
-    if (fn(this, this.role) === false && opt.detect_boolean) {return;}
+  /**
+   * Count all descendants
+   * @returns {number}
+   */
+  count_descendants(): number {
+    let count = 0;
+    this.walk_down(node => count += node.count_children());
+    return count;
+  }
 
+  /**
+   * Walk down 1 level
+   * @param {{(parent: T_role<T_custom>)}} fn
+   */
+  down(fn: (children: T_roles<D, K>) => any) {
+    if (this.children) {
+      fn(this.children);
+    }
+  }
+
+  /**
+   * Walk up 1 level
+   * @param {{(parent: T_role<T_custom>)}} fn
+   */
+  up(fn: (parent: T_role<D, K>) => any) {
     if (this.parent) {
-      this.parent.walk_up(fn, opt);
+      fn(this.parent);
     }
   }
 
@@ -148,7 +147,7 @@ export class Rnode<T_custom = any> implements T_role {
    * Walk along children
    * @param {{(node: Rnode)}} fn
    */
-  walk_down(fn: (node: Rnode) => any, opt?: T_walk_opt) {
+  walk_down(fn: (node: Rnode<D, K>) => any, opt?: T_walk_opt<D, K>) {
     opt = {
       detect_boolean: false,
       ...opt,
@@ -166,30 +165,28 @@ export class Rnode<T_custom = any> implements T_role {
   }
 
   /**
-   * Walk up 1 level
-   * @param {{(parent: T_role<T_custom>)}} fn
+   * Walk along parents
+   * @param {{(node: Rnode)}} fn
    */
-  up(fn: (parent: T_role<T_custom>) => any) {
-    if (this.parent) {
-      fn(this.parent);
-    }
-  }
+  walk_up(fn: (node: Rnode<D, K>, name?: K) => any, opt?: T_walk_opt<D, K>) {
+    opt = {
+      detect_boolean: false,
+      ...opt,
+    };
 
-  /**
-   * Walk down 1 level
-   * @param {{(parent: T_role<T_custom>)}} fn
-   */
-  down(fn: (children: T_roles<T_custom>) => any) {
-    if (this.children) {
-      fn(this.children);
+    if (opt.stop && opt.stop(this)) {return;}
+    if (fn(this, this.role) === false && opt.detect_boolean) {return;}
+
+    if (this.parent) {
+      this.parent.walk_up(fn, opt);
     }
   }
 
   /**
    * Find node by role name
    */
-  static find_by_role(from: Rnode, name: string): Rnode | undefined {
-    let role: Rnode;
+  static find_by_role<D = any, K = string>(from: Rnode<D, K>, name: K): Rnode<D, K> | undefined {
+    let role: Rnode<D, K>;
 
     from.walk_down(it => {
       if (it.role === name) {
@@ -205,12 +202,14 @@ export class Rnode<T_custom = any> implements T_role {
   }
 }
 
-export type T_rnodes = { [key: string]: Rnode }
+export type T_rnodes<D = any, K = any> = {
+  [key in (keyof K | string)]: Rnode<D, K>;
+};
 
-export interface T_walk_opt {
+export interface T_walk_opt<D = any, K = string> {
+  detect_boolean?: boolean
   /**
    * Stop condition
    */
-  stop?: { (node: Rnode): boolean },
-  detect_boolean?: boolean
+  stop?: { (node: Rnode<D, K>): boolean },
 }
