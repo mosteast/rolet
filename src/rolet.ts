@@ -232,12 +232,14 @@ export class Rolet<D = any, K extends string = string> {
     __('_calc_complete_values_single() input:', arguments);
 
     let node;
+    let r;
     if (role === this.opt.super) {
       node = this.root;
+      r = node?.collect_values(path, 'down');
     } else {
       node = Rnode.find_by_role<D, K>(this.root, role);
+      r = node?.collect_values(path);
     }
-    const r = node?.collect_values(path);
     __('_calc_complete_values_single() output:', r);
     return r;
   }

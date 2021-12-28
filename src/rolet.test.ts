@@ -268,7 +268,7 @@ it('is', async () => {
 });
 
 it('calc_complete_actions', () => {
-  const rolet = new Rolet({
+  const rolet = new Rolet<any, any>({
     actions: ['root.action1'],
     children: {
       a: {
@@ -308,7 +308,7 @@ it('calc_complete_actions', () => {
         },
       },
     },
-  });
+  }, { super: 'super' });
 
   expect(rolet.calc_complete_actions('a')).toEqual(['a.action1', 'root.action1']);
   expect(rolet.calc_complete_actions('aa1')).toEqual(['aa1.action1', 'aa1.action2', 'a.action1', 'root.action1']);
@@ -316,6 +316,17 @@ it('calc_complete_actions', () => {
   expect(rolet.calc_complete_actions('b')).toEqual(['b.action1', 'root.action1']);
   expect(rolet.calc_complete_actions('bb1')).toEqual(['bb1.action1', 'bb1.action2', 'b.action1', 'root.action1']);
   expect(rolet.calc_complete_actions('bb2')).toEqual(['bb2.action1', 'bb2.action2', 'b.action1', 'root.action1']);
+  expect(rolet.calc_complete_actions('super')).toEqual([
+    'root.action1', 'a.action1',
+    'aa1.action1', 'aa1.action2',
+    'aa2.action1', 'aa2.action2',
+    'b.action1', 'bb1.action1',
+    'bb1.action2', 'bb2.action1',
+    'bb2.action2', 'bb3.action1',
+    'bb3.action2', 'bbb1.action1',
+    'bbb1.action2', 'bbbb1.action1',
+    'bbbb1.action2'
+  ]);
 });
 
 it('enum roles', async () => {
