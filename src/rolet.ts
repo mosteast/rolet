@@ -1,8 +1,13 @@
+import { debug } from 'debug';
 import { flatten } from 'lodash';
 import uniq from 'lodash.uniq';
 import { Conflict_role_name } from './error/conflict_role_name';
 import { Rnode } from './rnode';
 import { T_action, T_actions, T_role } from './type';
+
+export const debug_rolet = debug('rolet');
+
+const __ = debug_rolet.extend('Rolet');
 
 export const DEFAULT_ROOT = '_public_';
 
@@ -83,14 +88,17 @@ export class Rolet<D = any, K extends string = string> {
    * Collect complete roles upward through ancestors
    */
   calc_complete_actions(roles: K[] | K): T_actions {
+    __('calc_complete_actions() input %O', roles);
     roles = this.roles_normalize(roles);
 
-    let r: T_actions[] = [];
+    let r: T_actions[] | T_actions = [];
     for (const it of roles) {
-      r = r.concat(this._calc_complete_values_single<T_actions>(it, 'actions') || []);
+      r = (r as T_actions[]).concat(this._calc_complete_values_single<T_actions>(it, 'actions') || []);
     }
 
-    return uniq(flatten(r));
+    r = uniq(flatten(r));
+    __('calc_complete_actions() output %O', r);
+    return r;
   }
 
   /**
@@ -221,7 +229,16 @@ export class Rolet<D = any, K extends string = string> {
    * Collect roles upward through ancestors
    */
   private _calc_complete_values_single<V>(role: K, path: string): V[] | undefined {
-    const node = Rnode.find_by_role<D, K>(this.root, role);
-    return node?.collect_values(path);
+    __('_calc_complete_values_single() input:', arguments);
+
+    let node;
+    if (role === this.opt.super) {
+      node = this.root;
+    } else {
+      node = Rnode.find_by_role<D, K>(this.root, role);
+    }
+    const r = node?.collect_values(path);
+    __('_calc_complete_values_single() output:', r);
+    return r;
   }
 }
